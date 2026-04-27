@@ -250,39 +250,63 @@ export default function HomePage() {
     });
 
     const sections = gsap.utils.toArray(".panel");
-    const scrollTween = gsap.to(sections, {
-      xPercent: -100 * (sections.length - 1),
-      ease: "none",
-      scrollTrigger: {
-        trigger: ".horizontal-container",
-        pin: true,
-        scrub: 1,
-        anticipatePin: 1,
-        end: () => "+=300%",
-        onUpdate: (self) => {
-          gsap.to(".scroll-progress-bar", {
-            scaleX: self.progress,
-            transformOrigin: "left center",
-            duration: 0.1,
-            ease: "none"
-          });
-        }
-      },
+    
+    // Only apply horizontal scroll on Desktop (lg and up)
+    let mm = gsap.matchMedia();
+    
+    mm.add("(min-width: 1024px)", () => {
+      const scrollTween = gsap.to(sections, {
+        xPercent: -100 * (sections.length - 1),
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".horizontal-container",
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+          end: () => "+=300%",
+          onUpdate: (self) => {
+            gsap.to(".scroll-progress-bar", {
+              scaleX: self.progress,
+              transformOrigin: "left center",
+              duration: 0.1,
+              ease: "none"
+            });
+          }
+        },
+      });
+
+      sections.forEach((panel: any) => {
+        const elements = panel.querySelectorAll(".panel-content");
+        gsap.from(elements, {
+          scrollTrigger: {
+            trigger: panel,
+            containerAnimation: scrollTween,
+            start: "left center",
+            toggleActions: "play none none reverse",
+          },
+          opacity: 0,
+          y: 80,
+          duration: 1.2,
+          ease: "power4.out"
+        });
+      });
     });
 
-    sections.forEach((panel: any) => {
-      const elements = panel.querySelectorAll(".panel-content");
-      gsap.from(elements, {
-        scrollTrigger: {
-          trigger: panel,
-          containerAnimation: scrollTween,
-          start: "left center",
-          toggleActions: "play none none reverse",
-        },
-        opacity: 0,
-        y: 80,
-        duration: 1.2,
-        ease: "power4.out"
+    // Mobile/Tablet: Vertical Scroll Reveal
+    mm.add("(max-width: 1023px)", () => {
+      sections.forEach((panel: any) => {
+        const elements = panel.querySelectorAll(".panel-content");
+        gsap.from(elements, {
+          scrollTrigger: {
+            trigger: panel,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
+          opacity: 0,
+          y: 50,
+          duration: 1,
+          ease: "power2.out"
+        });
       });
     });
 
@@ -353,8 +377,10 @@ export default function HomePage() {
 
       <AboutMe />
 
-      <section className="horizontal-container relative flex h-screen overflow-hidden bg-[#f3f5f8]">
-        <div className="absolute top-0 left-0 z-[100] h-1.5 w-full bg-slate-200/50 overflow-hidden">
+      {/* 2. Horizontal Scroll Section - Categorized Registry */}
+      <section className="horizontal-container relative flex flex-col lg:flex-row lg:h-screen lg:overflow-hidden bg-[#f3f5f8]">
+        {/* Progress Bar - Only for Desktop Horizontal Scroll */}
+        <div className="absolute top-0 left-0 z-[100] h-1.5 w-full bg-slate-200/50 overflow-hidden hidden lg:block">
           <div className="scroll-progress-bar h-full w-full bg-gradient-to-r from-indigo-500 via-cyan-500 to-indigo-500 scale-x-0" />
         </div>
 
@@ -365,7 +391,8 @@ export default function HomePage() {
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
         </div>
 
-        <div className="panel flex h-screen w-screen flex-shrink-0 items-center justify-center px-10 relative overflow-hidden">
+        {/* Intro Panel */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-10 relative overflow-hidden py-20 lg:py-0">
           <div className="panel-content max-w-4xl text-center relative z-10">
             <div className="relative inline-block mb-10">
               <Layers className="text-indigo-600 relative z-10" size={120} />
@@ -388,7 +415,8 @@ export default function HomePage() {
           </div>
         </div>
         
-        <div className="panel flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-12 sm:px-24">
+        {/* Google Success Panel 1 */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
           <div className="panel-content w-full max-w-7xl">
             <div className="grid lg:grid-cols-[1fr,1.5fr] gap-20 items-center">
               <div className="space-y-10">
@@ -414,7 +442,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="panel flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-12 sm:px-24">
+        {/* Google Success Panel 2 */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
           <div className="panel-content w-full max-w-7xl">
             <div className="grid lg:grid-cols-[1.5fr,1fr] gap-20 items-center">
               <div className="grid gap-8 sm:grid-cols-2 order-2 lg:order-1">
@@ -440,7 +469,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="panel flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-12 sm:px-24 bg-rose-50/30">
+        {/* Google Failure Panel */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0 bg-rose-50/30">
           <div className="panel-content w-full max-w-6xl">
             <div className="mb-16 flex flex-col items-center gap-6 text-center">
               <div className="flex items-center gap-3 rounded-full border border-rose-200 bg-white px-8 py-3 shadow-sm">
@@ -456,7 +486,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="panel flex h-screen w-screen flex-shrink-0 flex-col items-center justify-center px-12 sm:px-24 bg-emerald-50/30">
+        {/* Naver Panel */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0 bg-emerald-50/30">
           <div className="panel-content w-full max-w-6xl">
             <div className="mb-16 flex flex-col items-center gap-6 text-center">
               <div className="flex items-center gap-3 rounded-full border border-emerald-200 bg-white px-8 py-3 shadow-sm">
@@ -472,7 +503,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="panel flex h-screen w-screen flex-shrink-0 items-center justify-center">
+        {/* End Panel */}
+        <div className="panel flex min-h-[50vh] lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center py-20 lg:py-0">
           <div className="panel-content max-w-md text-center">
             <div className="h-[1px] w-full bg-slate-200 mb-12" />
             <h2 className="text-9xl font-black text-slate-900 leading-none uppercase tracking-tighter mb-6">END</h2>
