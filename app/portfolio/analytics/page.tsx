@@ -92,7 +92,7 @@ function Spark({ data, k, color, gradId }: { data: DayRow[]; k: keyof DayRow; co
 function KpiCard({ label, value, change, icon: Icon, color, accentFrom, accentTo, data, dataKey, gradId }: {
   label: string; value: string;
   change?: { v: number; up: boolean } | null;
-  icon: React.ElementType; color: string;
+  icon: React.FC<{ size?: number; className?: string }>; color: string;
   accentFrom: string; accentTo: string;
   data: DayRow[]; dataKey: keyof DayRow; gradId: string;
 }) {

@@ -18,6 +18,13 @@ export type TimelineItem = {
   desc: string;
 };
 
+export type SearchConsoleData = {
+  impressions: string;
+  clicks: string;
+  avgPosition: number;
+  history: number[];
+};
+
 export type Case = {
   engine: Engine;
   type: CaseType;
@@ -35,6 +42,11 @@ export type Case = {
   insight: string;
   ready: boolean;
   hasLiveDashboard?: boolean;
+  topKeyword?: {
+    keyword: string;
+    rank: number;
+  };
+  searchConsole?: SearchConsoleData;
 };
 
 // ─────────────────────────────────────────────────────────────
