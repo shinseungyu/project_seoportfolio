@@ -3,11 +3,11 @@
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Search, ArrowLeft, MousePointer2, MoveRight, Layers, LayoutGrid, Zap, Globe, BarChart3, TrendingUp, TrendingDown, ChevronRight, Lock, ArrowUpRight, Trophy, CheckCircle2, Target, Lightbulb } from "lucide-react";
+import { MousePointer2, MoveRight, Layers, TrendingUp, TrendingDown, Lock, ArrowUpRight, Trophy, CheckCircle2, Target } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { googleCases, naverCases, googleSuccessCases, googleFailureCases, type Case } from "@/data/cases";
+import { naverCases, googleSuccessCases, googleFailureCases, type Case } from "@/data/cases";
 import { AboutMe } from "@/components/about-me";
 
 const HeroScene = dynamic(() => import("@/components/hero-scene-v2").then((mod) => mod.HeroSceneV2), {
@@ -109,105 +109,181 @@ function CaseCard({ c, isLight = false }: { c: Case, isLight?: boolean }) {
   const h3 = Math.max(10, (30 - displayAvgPosRaw) / 30 * 100); 
 
   return (
-    <Link href={href} className={`group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border transition-all duration-700 shadow-2xl backdrop-blur-md p-10 ${
-      isLight 
-        ? "bg-white/40 border-slate-200/50 hover:bg-white/60 shadow-slate-200/50" 
-        : "bg-[#080c14]/80 border-white/5 hover:bg-white/[0.03] shadow-black/50"
+    <Link href={href} className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-500 shadow-lg backdrop-blur-md p-5 cursor-pointer hover:-translate-y-1 hover:shadow-xl ${
+      isLight
+        ? "bg-white/40 border-slate-200/50 hover:border-indigo-300 hover:bg-white/70 shadow-slate-200/50 hover:shadow-indigo-100"
+        : "bg-[#080c14]/80 border-white/5 hover:border-indigo-500/30 hover:bg-white/[0.03] shadow-black/50"
     }`}>
       <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-1000 ${
         isLight ? "from-indigo-500/10 via-transparent to-cyan-500/10" : "from-indigo-500/5 via-transparent to-emerald-500/5"
       }`} />
-      
-      <div className="flex items-start justify-between z-10 mb-10">
-        <div className="flex items-center gap-5">
-          <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${ts.bg} ${ts.border} border shadow-xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-indigo-500/10`}>
-            <Icon size={24} className={ts.text} />
+
+      <div className="flex items-start justify-between z-10 mb-4">
+        <div className="flex items-center gap-3">
+          <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${ts.bg} ${ts.border} border shadow-md transition-all duration-500 group-hover:scale-105`}>
+            <Icon size={16} className={ts.text} />
           </div>
-          <div className="space-y-1">
-            <p className={`text-[38px] font-black transition-colors tracking-tighter uppercase leading-none ${
+          <div className="space-y-0.5">
+            <p className={`text-2xl font-black transition-colors tracking-tighter uppercase leading-none ${
               isLight ? "text-slate-900 group-hover:text-indigo-600" : "text-white group-hover:text-indigo-400"
             }`}>{c.site}</p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              <p className={`text-[18px] font-bold uppercase tracking-[0.2em] ${
+              <p className={`text-[11px] font-bold uppercase tracking-[0.15em] ${
                 isLight ? "text-slate-400" : "text-zinc-500"
               }`}>{isLive ? "Live Performance" : "Performance Report"}</p>
             </div>
           </div>
         </div>
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full border transition-all group-hover:rotate-45 duration-500 ${
-          isLight ? "border-slate-200 bg-slate-50 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10" : "border-white/10 bg-white/5 group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10"
+        <div className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-300 group-hover:scale-110 group-hover:rotate-45 ${
+          isLight ? "border-slate-200 bg-slate-50 group-hover:border-indigo-500 group-hover:bg-indigo-500 group-hover:shadow-md group-hover:shadow-indigo-200" : "border-white/10 bg-white/5 group-hover:border-indigo-500 group-hover:bg-indigo-500"
         }`}>
-          <ArrowUpRight size={18} className={isLight ? "text-slate-600 group-hover:text-indigo-600" : "text-white group-hover:text-indigo-400"} />
+          <ArrowUpRight size={14} className={isLight ? "text-slate-500 group-hover:text-white" : "text-white group-hover:text-white"} />
         </div>
       </div>
 
-      <div className={`relative z-10 mb-10 h-64 w-full rounded-3xl border p-10 flex items-end justify-around gap-10 transition-all shadow-inner overflow-hidden ${
+      {/* Keyword + Engine Rank Badge */}
+      <div className="flex flex-wrap items-center gap-2 mb-4 z-10 relative">
+        <span className={`text-[11px] font-semibold rounded-full px-3 py-1 ${isLight ? "bg-slate-100/80 text-slate-600" : "bg-white/5 text-zinc-400"}`}>
+          {coreKeyword}
+        </span>
+        {!loading && displayAvgPosRaw > 0 && (
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-1 border ${
+            displayAvgPosRaw <= 3
+              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+              : displayAvgPosRaw <= 10
+                ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                : "bg-rose-500/10 text-rose-600 border-rose-500/20"
+          }`}>
+            <span className="font-black">{c.engine === "google" ? "G" : "N"}</span>
+            {displayAvgPosRaw <= 3 ? "1위 달성" : displayAvgPosRaw <= 10 ? "1페이지" : "1페이지 밖"}
+          </span>
+        )}
+      </div>
+
+      <div className={`relative z-10 mb-4 h-48 w-full rounded-xl border p-4 flex items-end justify-around gap-4 transition-all shadow-inner overflow-hidden ${
         isLight ? "bg-slate-100/50 border-slate-200/50 group-hover:border-indigo-500/20" : "bg-black/20 border-white/[0.03] group-hover:border-indigo-500/20"
       }`}>
-         <div className={`absolute inset-0 pointer-events-none ${isLight ? "opacity-[0.05]" : "opacity-[0.03]"}`} style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-         
+         <div className={`absolute inset-0 pointer-events-none ${isLight ? "opacity-[0.05]" : "opacity-[0.03]"}`} style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
          {loading ? (
-            <div className="flex items-end justify-around w-full h-full gap-8">
-              {[1, 2, 3].map(i => <div key={i} className={`w-20 rounded-t-xl animate-pulse h-1/2 ${isLight ? "bg-slate-200" : "bg-white/5"}`} />)}
+            <div className="flex items-end justify-around w-full h-full gap-4">
+              {[1, 2, 3].map(i => <div key={i} className={`w-12 rounded-t-lg animate-pulse h-1/2 ${isLight ? "bg-slate-200" : "bg-white/5"}`} />)}
             </div>
          ) : (
             <>
-              <div className="flex flex-col items-center gap-4 w-full h-full justify-end group/bar">
-                <div className={`relative w-full max-w-[80px] h-full rounded-t-2xl overflow-hidden transition-colors ${isLight ? "bg-slate-200/50 group-hover/bar:bg-slate-200" : "bg-white/[0.02] group-hover/bar:bg-white/[0.05]"}`}>
-                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-indigo-600 via-indigo-500 to-indigo-400 transition-all duration-1000 ease-out rounded-t-2xl" style={{ height: `${h1}%` }} />
+              <div className="flex flex-col items-center gap-2 w-full h-full justify-end group/bar">
+                <div className={`relative w-full max-w-[56px] h-full rounded-t-lg overflow-hidden transition-colors ${isLight ? "bg-slate-200/50 group-hover/bar:bg-slate-200" : "bg-white/[0.02] group-hover/bar:bg-white/[0.05]"}`}>
+                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-indigo-600 via-indigo-500 to-indigo-400 transition-all duration-1000 ease-out rounded-t-lg" style={{ height: `${h1}%` }} />
                 </div>
                 <div className="flex flex-col items-center">
-                   <span className={`text-[20px] font-black uppercase tracking-widest ${isLight ? "text-slate-400" : "text-zinc-500"}`}>노출수</span>
-                   <span className="text-[22px] font-black text-indigo-500/90">{displayImpressionsRaw.toLocaleString()}</span>
+                   <span className={`text-[11px] font-black uppercase tracking-widest ${isLight ? "text-slate-400" : "text-zinc-500"}`}>노출수</span>
+                   <span className="text-[13px] font-black text-indigo-500/90">{displayImpressionsRaw.toLocaleString()}</span>
                 </div>
               </div>
-              <div className="flex flex-col items-center gap-4 w-full h-full justify-end group/bar">
-                <div className={`relative w-full max-w-[80px] h-full rounded-t-2xl overflow-hidden transition-colors ${isLight ? "bg-slate-200/50 group-hover/bar:bg-slate-200" : "bg-white/[0.02] group-hover/bar:bg-white/[0.05]"}`}>
-                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-emerald-600 via-emerald-500 to-emerald-400 transition-all duration-1000 ease-out rounded-t-2xl" style={{ height: `${h2}%` }} />
+              <div className="flex flex-col items-center gap-2 w-full h-full justify-end group/bar">
+                <div className={`relative w-full max-w-[56px] h-full rounded-t-lg overflow-hidden transition-colors ${isLight ? "bg-slate-200/50 group-hover/bar:bg-slate-200" : "bg-white/[0.02] group-hover/bar:bg-white/[0.05]"}`}>
+                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-emerald-600 via-emerald-500 to-emerald-400 transition-all duration-1000 ease-out rounded-t-lg" style={{ height: `${h2}%` }} />
                 </div>
                 <div className="flex flex-col items-center">
-                   <span className={`text-[20px] font-black uppercase tracking-widest ${isLight ? "text-slate-400" : "text-zinc-500"}`}>클릭수</span>
-                   <span className="text-[22px] font-black text-emerald-500/90">{displayClicksRaw.toLocaleString()}</span>
+                   <span className={`text-[11px] font-black uppercase tracking-widest ${isLight ? "text-slate-400" : "text-zinc-500"}`}>클릭수</span>
+                   <span className="text-[13px] font-black text-emerald-500/90">{displayClicksRaw.toLocaleString()}</span>
                 </div>
               </div>
-              <div className="flex flex-col items-center gap-4 w-full h-full justify-end group/bar">
-                <div className={`relative w-full max-w-[80px] h-full rounded-t-2xl overflow-hidden transition-colors ${isLight ? "bg-slate-200/50 group-hover/bar:bg-slate-200" : "bg-white/[0.02] group-hover/bar:bg-white/[0.05]"}`}>
-                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 transition-all duration-1000 ease-out rounded-t-2xl" style={{ height: `${h3}%` }} />
+              <div className="flex flex-col items-center gap-2 w-full h-full justify-end group/bar">
+                <div className={`relative w-full max-w-[56px] h-full rounded-t-lg overflow-hidden transition-colors ${isLight ? "bg-slate-200/50 group-hover/bar:bg-slate-200" : "bg-white/[0.02] group-hover/bar:bg-white/[0.05]"}`}>
+                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 transition-all duration-1000 ease-out rounded-t-lg" style={{ height: `${h3}%` }} />
                 </div>
                 <div className="flex flex-col items-center text-center">
-                   <span className={`text-[20px] font-black uppercase tracking-widest truncate w-32 ${isLight ? "text-slate-400" : "text-zinc-500"}`}>{coreKeyword}</span>
-                   <span className="text-[22px] font-black text-amber-500/90">평균 순위</span>
+                   <span className={`text-[11px] font-black uppercase tracking-widest truncate w-20 ${isLight ? "text-slate-400" : "text-zinc-500"}`}>{coreKeyword}</span>
+                   <span className="text-[13px] font-black text-amber-500/90">평균 순위</span>
                 </div>
               </div>
             </>
          )}
       </div>
 
-      <div className={`relative z-10 grid grid-cols-3 gap-6 pt-8 border-t ${isLight ? "border-slate-200" : "border-white/5"}`}>
-        <div className="space-y-1">
-          <p className={`text-[20px] font-black uppercase tracking-[0.2em] ${isLight ? "text-slate-400" : "text-zinc-600"}`}>Impressions</p>
-          <div className="flex items-baseline gap-1">
-            <p className={`text-[44px] font-black tracking-tighter ${isLight ? "text-slate-900" : "text-white"}`}>{loading ? "---" : displayImpressions}</p>
-            <span className={`text-lg font-bold ${isLight ? "text-slate-400" : "text-zinc-700"}`}>회</span>
+      <div className={`relative z-10 grid grid-cols-3 gap-3 pt-4 border-t ${isLight ? "border-slate-200" : "border-white/5"}`}>
+        <div className="space-y-0.5">
+          <p className={`text-[10px] font-black uppercase tracking-[0.15em] ${isLight ? "text-slate-400" : "text-zinc-600"}`}>Impressions</p>
+          <div className="flex items-baseline gap-0.5">
+            <p className={`text-3xl font-black tracking-tighter ${isLight ? "text-slate-900" : "text-white"}`}>{loading ? "--" : displayImpressions}</p>
+            <span className={`text-sm font-bold ${isLight ? "text-slate-400" : "text-zinc-700"}`}>회</span>
           </div>
         </div>
-        <div className="space-y-1">
-          <p className={`text-[20px] font-black uppercase tracking-[0.2em] ${isLight ? "text-slate-400" : "text-zinc-600"}`}>Clicks</p>
-          <div className="flex items-baseline gap-1">
-            <p className="text-[44px] font-black text-emerald-500 tracking-tighter">{loading ? "---" : displayClicks}</p>
-            <span className={`text-lg font-bold ${isLight ? "text-slate-400" : "text-zinc-700"}`}>회</span>
+        <div className="space-y-0.5">
+          <p className={`text-[10px] font-black uppercase tracking-[0.15em] ${isLight ? "text-slate-400" : "text-zinc-600"}`}>Clicks</p>
+          <div className="flex items-baseline gap-0.5">
+            <p className="text-3xl font-black text-emerald-500 tracking-tighter">{loading ? "--" : displayClicks}</p>
+            <span className={`text-sm font-bold ${isLight ? "text-slate-400" : "text-zinc-700"}`}>회</span>
           </div>
         </div>
-        <div className="space-y-1">
-          <p className={`text-[20px] font-black uppercase tracking-[0.2em] ${isLight ? "text-slate-400" : "text-zinc-600"}`}>Ranking</p>
-          <div className="flex items-baseline gap-1">
-            <p className="text-[44px] font-black text-amber-500 tracking-tighter">{loading ? "---" : `#${displayAvgPos}`}</p>
-            <span className={`text-lg font-bold ${isLight ? "text-slate-400" : "text-zinc-700"}`}>위</span>
+        <div className="space-y-0.5">
+          <p className={`text-[10px] font-black uppercase tracking-[0.15em] ${isLight ? "text-slate-400" : "text-zinc-600"}`}>Ranking</p>
+          <div className="flex items-baseline gap-0.5">
+            <p className="text-3xl font-black text-amber-500 tracking-tighter">{loading ? "--" : `#${displayAvgPos}`}</p>
+            <span className={`text-sm font-bold ${isLight ? "text-slate-400" : "text-zinc-700"}`}>위</span>
           </div>
         </div>
       </div>
+
+      {/* 클릭 유도 */}
+      <div className={`mt-4 pt-3 border-t flex items-center justify-between transition-all duration-300 ${
+        isLight ? "border-slate-100 opacity-40 group-hover:opacity-100" : "border-white/5 opacity-20 group-hover:opacity-60"
+      }`}>
+        <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isLight ? "text-indigo-500" : "text-indigo-400"}`}>
+          자세히 보기
+        </span>
+        <ArrowUpRight size={12} className={`transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${isLight ? "text-indigo-400" : "text-indigo-500"}`} />
+      </div>
     </Link>
+  );
+}
+
+function PerformancePanelContent({
+  title, accentText, accentColor,
+  description, badgeText, BadgeIcon, badgeColorClass,
+  tier,
+}: {
+  title: string; accentText: string; accentColor: string;
+  description: string; badgeText: string; BadgeIcon: React.FC<{ size?: number; className?: string }>; badgeColorClass: string;
+  tier: "rank1" | "page1" | "failure";
+}) {
+  const cases = [...googleSuccessCases, ...googleFailureCases, ...naverCases].filter(c => {
+    if (!c.ready) return false;
+    if (tier === "failure") return c.type === "failure";
+    if (tier === "rank1") return c.type === "success" && c.tier === "rank1";
+    return c.type === "success" && c.tier === "page1";
+  });
+
+  return (
+    <div className="panel-content w-full max-w-7xl">
+      <div className="grid lg:grid-cols-[260px,1fr] gap-10 items-start">
+        <div className="space-y-5">
+          <div className={`inline-flex items-center gap-2 rounded-full border bg-white px-5 py-2 shadow-sm ${badgeColorClass}`}>
+            <BadgeIcon size={13} />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">{badgeText}</span>
+          </div>
+          <div>
+            <h3 className="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none">{title}</h3>
+            <h3 className={`text-4xl font-black uppercase tracking-tighter leading-none ${accentColor}`}>{accentText}</h3>
+          </div>
+          <p className="text-sm font-medium text-slate-500 leading-relaxed">{description}</p>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          {cases.length > 0
+            ? cases.map(c => <div key={c.slug} className="min-h-[320px]"><CaseCard c={c} isLight /></div>)
+            : (
+              <div className="col-span-2 flex flex-col items-center justify-center h-48 gap-3 rounded-2xl border border-dashed border-slate-300">
+                <Lock size={20} className="text-slate-300" />
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">준비 중</p>
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -415,92 +491,46 @@ export default function HomePage() {
           </div>
         </div>
         
-        {/* Google Success Panel 1 */}
+        {/* Panel: 1위 달성 프로젝트 */}
         <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
-          <div className="panel-content w-full max-w-7xl">
-            <div className="grid lg:grid-cols-[1fr,1.5fr] gap-20 items-center">
-              <div className="space-y-10">
-                <div className="inline-flex items-center gap-3 rounded-full border border-indigo-200 bg-white px-6 py-2 shadow-sm">
-                   <Zap className="text-indigo-500" size={16} />
-                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Phase 01: Core Architecture</span>
-                </div>
-                <div>
-                  <h3 className="text-7xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-8">
-                    Google <br/> 
-                    <span className="text-indigo-600">SEO</span>
-                  </h3>
-                  <p className="text-xl font-medium text-slate-500 leading-relaxed">
-                    검색엔진이 코드를 이해하는 방식을 최적화했습니다. <br/>
-                    <span className="text-slate-900 font-bold underline decoration-indigo-500/30">Core Web Vitals</span> 개선과 <span className="text-slate-900 font-bold underline decoration-indigo-500/30">JSON-LD 마크업</span>으로 크롤링 효율을 극대화한 사례입니다.
-                  </p>
-                </div>
-              </div>
-              <div className="grid gap-8 sm:grid-cols-2">
-                 {googleSuccessCases.slice(0, 2).map(c => <div key={c.slug} className="h-full min-h-[480px]"><CaseCard c={c} isLight={true} /></div>)}
-              </div>
-            </div>
-          </div>
+          <PerformancePanelContent
+            title="1위 달성"
+            accentText="프로젝트"
+            accentColor="text-indigo-600"
+            description="핵심 키워드에서 검색 1위를 달성한 사례입니다. 기술 SEO와 콘텐츠 전략이 결합된 결과입니다."
+            badgeText="Tier 01 · Rank #1 Achieved"
+            BadgeIcon={Trophy}
+            badgeColorClass="border-indigo-200 text-indigo-600"
+            tier="rank1"
+          />
         </div>
 
-        {/* Google Success Panel 2 */}
+        {/* Panel: 1페이지 안착 프로젝트 */}
         <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
-          <div className="panel-content w-full max-w-7xl">
-            <div className="grid lg:grid-cols-[1.5fr,1fr] gap-20 items-center">
-              <div className="grid gap-8 sm:grid-cols-2 order-2 lg:order-1">
-                 {googleSuccessCases.slice(2, 4).map(c => <div key={c.slug} className="h-full min-h-[480px]"><CaseCard c={c} isLight={true} /></div>)}
-              </div>
-              <div className="space-y-10 order-1 lg:order-2">
-                <div className="inline-flex items-center gap-3 rounded-full border border-amber-200 bg-white px-6 py-2 shadow-sm">
-                   <Lightbulb className="text-amber-500" size={16} />
-                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600">Phase 02: Authority Build</span>
-                </div>
-                <div>
-                  <h3 className="text-7xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-8">
-                    Content <br/> 
-                    <span className="text-amber-500">Power</span>
-                  </h3>
-                  <p className="text-xl font-medium text-slate-500 leading-relaxed">
-                    E-E-A-T를 알고리즘에 입증했습니다. <br/>
-                    <span className="text-slate-900 font-bold underline decoration-amber-500/30">토픽 클러스터링</span> 기반의 전략 설계로 고경쟁 키워드 상위권을 점유한 사례입니다.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PerformancePanelContent
+            title="1페이지"
+            accentText="안착 프로젝트"
+            accentColor="text-amber-500"
+            description="구글·네이버 검색 1페이지(Top 10)에 안착한 사례입니다. 지속적인 트래픽 유입을 실현했습니다."
+            badgeText="Tier 02 · Page 1 Secured"
+            BadgeIcon={CheckCircle2}
+            badgeColorClass="border-amber-200 text-amber-600"
+            tier="page1"
+          />
         </div>
 
-        {/* Google Failure Panel */}
-        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0 bg-rose-50/30">
-          <div className="panel-content w-full max-w-6xl">
-            <div className="mb-16 flex flex-col items-center gap-6 text-center">
-              <div className="flex items-center gap-3 rounded-full border border-rose-200 bg-white px-8 py-3 shadow-sm">
-                 <TrendingDown className="text-rose-500" size={18} />
-                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-600">Strategic Retrospective</span>
-              </div>
-              <h3 className="text-6xl font-black text-slate-900 uppercase tracking-tighter">Algorithm Post-Mortem</h3>
-              <p className="text-slate-500 max-w-xl mx-auto font-medium">실패를 통한 정교한 학습 과정입니다.</p>
-            </div>
-            <div className="grid w-full gap-10 sm:grid-cols-2">
-               {googleFailureCases.map(c => <div key={c.slug} className="h-full min-h-[480px]"><CaseCard c={c} isLight={true} /></div>)}
-            </div>
-          </div>
-        </div>
-
-        {/* Naver Panel */}
-        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0 bg-emerald-50/30">
-          <div className="panel-content w-full max-w-6xl">
-            <div className="mb-16 flex flex-col items-center gap-6 text-center">
-              <div className="flex items-center gap-3 rounded-full border border-emerald-200 bg-white px-8 py-3 shadow-sm">
-                 <BarChart3 className="text-emerald-500" size={18} />
-                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-600">Local Ecosystem</span>
-              </div>
-              <h3 className="text-6xl font-black text-slate-900 uppercase tracking-tighter">Hyper-Local Optimization</h3>
-              <p className="text-slate-500 max-w-xl mx-auto font-medium">네이버 검색 생태계에 최적화된 로컬 검색 전략입니다.</p>
-            </div>
-            <div className="grid w-full gap-10 sm:grid-cols-2">
-               {naverCases.map(c => <div key={c.slug} className="h-full min-h-[480px]"><CaseCard c={c} isLight={true} /></div>)}
-            </div>
-          </div>
+        {/* Panel: 실패 & 인사이트 */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0 bg-rose-50/20">
+          <PerformancePanelContent
+            title="실패 &"
+            accentText="인사이트"
+            accentColor="text-rose-500"
+            description="실패한 프로젝트에서 얻은 인사이트입니다. 무엇이 잘못됐는지, 그리고 무엇을 배웠는지."
+            badgeText="Strategic Retrospective"
+            BadgeIcon={Target}
+            badgeColorClass="border-rose-200 text-rose-600"
+            tier="failure"
+          />
         </div>
 
         {/* End Panel */}

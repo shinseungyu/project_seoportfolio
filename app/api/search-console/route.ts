@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     // spanDays: 90 → SC 웹 UI 기본값(3개월)과 동일하게
     const range = getDateRange(3, 90);
 
-    const [dateRes, queryRes] = await Promise.all([
+    const [dateRes, queryRes, countryRes] = await Promise.all([
       sc.searchanalytics.query({
         siteUrl: SITE_URL,
         requestBody: { startDate: range.startDate, endDate: range.endDate, dimensions: ["date"], rowLimit: 90 },
@@ -60,6 +60,10 @@ export async function GET(req: NextRequest) {
       sc.searchanalytics.query({
         siteUrl: SITE_URL,
         requestBody: { startDate: range.startDate, endDate: range.endDate, dimensions: ["query"], rowLimit: 100 },
+      }),
+      sc.searchanalytics.query({
+        siteUrl: SITE_URL,
+        requestBody: { startDate: range.startDate, endDate: range.endDate, dimensions: ["country"], rowLimit: 30 },
       }),
     ]);
 
@@ -80,6 +84,14 @@ export async function GET(req: NextRequest) {
       ctr: r.ctr ?? 0,
       position: r.position ?? 0,
     }));
+
+    const countries = (countryRes.data.rows ?? []).map((r) => ({
+      country: (r.keys?.[0] ?? "") as string,
+      clicks: r.clicks ?? 0,
+      impressions: r.impressions ?? 0,
+      ctr: r.ctr ?? 0,
+      position: r.position ?? 0,
+    })).sort((a, b) => b.clicks - a.clicks);
 
     const totalClicks = rows.reduce((s, d) => s + d.clicks, 0);
     const totalImpressions = rows.reduce((s, d) => s + d.impressions, 0);
@@ -118,7 +130,7 @@ export async function GET(req: NextRequest) {
     const prevTop10Count = (prevQueryRes.data.rows ?? []).filter((r) => (r.position ?? 99) <= 10).length;
 
     return NextResponse.json({
-      rows, keywords,
+      rows, keywords, countries,
       summary: { totalClicks, totalImpressions, avgCtr, avgPosition, startDate: range.startDate, endDate: range.endDate, prevClicks, prevImpressions, firstSeen, top10Count, prevTop10Count },
     });
   } catch (err: unknown) {

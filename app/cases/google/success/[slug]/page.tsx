@@ -12,7 +12,7 @@ import {
   ArrowLeft, ExternalLink, RefreshCw, CheckCircle,
   Target, TrendingUp, Eye, MousePointer, CalendarDays, Hash,
 } from "lucide-react";
-import { googleSuccessCases } from "@/data/cases";
+import { googleSuccessCases, type NaverData } from "@/data/cases";
 
 type DayRow = { date: string; clicks: number; impressions: number; ctr: number; position: number };
 type Keyword = { query: string; clicks: number; impressions: number; ctr: number; position: number };
@@ -110,6 +110,7 @@ export default function CaseDetailPage() {
   const [data, setData] = useState<ApiData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState("");
+  const [activeTab, setActiveTab] = useState<"google" | "naver" | "geo">("google");
 
   const fetchData = async () => {
     setLoading(true);
@@ -218,6 +219,153 @@ export default function CaseDetailPage() {
             </a>
           </div>
         </div>
+
+        {/* ── 탭 ── */}
+        <div className="flex gap-1.5 rounded-2xl border border-white/8 bg-white/[0.02] p-1.5">
+          {(["google", "naver", "geo"] as const).map((tab) => {
+            const labels = { google: "🔵 Google", naver: "🟢 Naver", geo: "🤖 GEO" };
+            const descs = { google: "검색엔진", naver: "네이버", geo: "생성형 AI" };
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 flex flex-col items-center gap-0.5 rounded-xl py-3.5 px-4 transition-all duration-200 ${
+                  activeTab === tab
+                    ? "bg-white/10 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-400 hover:bg-white/5"
+                }`}
+              >
+                <span className="text-sm font-black tracking-wide">{labels[tab]}</span>
+                <span className={`text-[10px] font-medium ${activeTab === tab ? "text-gray-400" : "text-gray-700"}`}>{descs[tab]}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── Naver 탭 ── */}
+        {activeTab === "naver" && (() => {
+          const nd: NaverData | undefined = c.naverData;
+          if (!nd) return (
+            <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/8 bg-white/[0.02] py-24">
+              <span className="text-3xl">🚧</span>
+              <p className="text-sm font-bold text-white">네이버 데이터 미등록</p>
+              <p className="text-xs text-gray-600">cases.ts의 naverData 필드에 값을 입력하면 표시됩니다.</p>
+            </div>
+          );
+          const naverKpis = [
+            { label: "총 클릭수",  value: nd.clicks.toLocaleString(),      color: "text-emerald-400", border: "border-emerald-500/20", bg: "bg-emerald-500/5",  icon: MousePointer },
+            { label: "총 노출수",  value: nd.impressions.toLocaleString(), color: "text-indigo-400",  border: "border-indigo-500/20",  bg: "bg-indigo-500/5",   icon: Eye },
+            { label: "평균 순위",  value: `#${nd.avgPosition}`,            color: "text-amber-400",   border: "border-amber-500/20",   bg: "bg-amber-500/5",    icon: Target },
+          ];
+          return (
+            <div className="space-y-5">
+              {nd.period && (
+                <p className="text-[11px] text-gray-600 text-right">{nd.period}</p>
+              )}
+              <div className="grid grid-cols-3 gap-3">
+                {naverKpis.map(item => (
+                  <div key={item.label} className={`rounded-2xl border ${item.border} ${item.bg} p-4`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] text-gray-500">{item.label}</span>
+                      <item.icon size={12} className={item.color} />
+                    </div>
+                    <div className={`text-2xl font-extrabold tabular-nums ${item.color}`}>{item.value}</div>
+                  </div>
+                ))}
+              </div>
+              {nd.history && nd.history.length > 0 && (
+                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+                  <p className="text-sm font-bold text-white mb-1">클릭수 · 노출수 추이</p>
+                  <p className="text-[11px] text-gray-600 mb-4">네이버 서치어드바이저 데이터</p>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <AreaChart data={nd.history} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="nc" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="2 4" stroke="#ffffff06" vertical={false} />
+                      <XAxis dataKey="date" tick={{ fill: "#4b5563", fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                      <YAxis tick={{ fill: "#4b5563", fontSize: 10 }} tickLine={false} axisLine={false} width={36} />
+                      <Tooltip content={<ChartTip />} />
+                      <Area type="monotone" dataKey="impressions" stroke="#6366f1" strokeWidth={1.5} fill="none" dot={false} />
+                      <Area type="monotone" dataKey="clicks" stroke="#10b981" strokeWidth={2} fill="url(#nc)" dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              {nd.keywords && nd.keywords.length > 0 && (
+                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+                  <p className="text-sm font-bold text-white mb-1">키워드 순위</p>
+                  <p className="text-[11px] text-gray-600 mb-4">네이버 검색 상위 키워드</p>
+                  <div className="space-y-3">
+                    {nd.keywords.map(kw => {
+                      const p = kw.position;
+                      const color = p <= 3 ? "bg-emerald-500" : p <= 10 ? "bg-indigo-500" : "bg-amber-500";
+                      const textColor = p <= 3 ? "text-emerald-400" : p <= 10 ? "text-indigo-400" : "text-amber-400";
+                      const barW = Math.max(6, Math.round((30 / p) * 100));
+                      return (
+                        <div key={kw.keyword}>
+                          <div className="mb-1 flex items-center justify-between gap-3">
+                            <span className="truncate text-xs font-medium text-gray-200">{kw.keyword}</span>
+                            <div className="flex shrink-0 items-center gap-2">
+                              <span className="text-[11px] tabular-nums text-gray-600">{kw.impressions.toLocaleString()} 노출</span>
+                              <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold bg-white/5 ${textColor}`}>#{p}위</span>
+                            </div>
+                          </div>
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                            <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${barW}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* ── GEO 탭 (Generative Engine Optimization) ── */}
+        {activeTab === "geo" && (() => {
+          const shots = c.geoScreenshots;
+          if (!shots || shots.length === 0) return (
+            <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/8 bg-white/[0.02] py-24">
+              <span className="text-3xl">🤖</span>
+              <p className="text-sm font-bold text-white">GEO 캡처 미등록</p>
+              <p className="text-xs text-gray-600">cases.ts의 geoScreenshots 필드에 이미지 경로를 추가하면 표시됩니다.</p>
+            </div>
+          );
+          return (
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+                <p className="text-sm font-bold text-white mb-1">GEO · 생성형 엔진 최적화</p>
+                <p className="text-[11px] text-gray-600 mb-5">AI 답변 안에 이 사이트 정보가 포함된 캡처</p>
+                <div className="space-y-6">
+                  {shots.map((s, i) => (
+                    <div key={i} className="rounded-xl border border-white/5 overflow-hidden">
+                      <div className="flex items-center gap-3 px-4 py-2.5 bg-white/[0.03] border-b border-white/5">
+                        <span className="text-xs font-black text-white">{s.tool}</span>
+                        <span className="text-white/20">·</span>
+                        <span className="text-xs text-gray-500 flex-1 truncate">"{s.prompt}"</span>
+                        {s.date && <span className="text-[10px] text-gray-700 shrink-0">{s.date}</span>}
+                      </div>
+                      <img
+                        src={s.image}
+                        alt={`${s.tool} - ${s.prompt}`}
+                        className="w-full object-contain bg-white/[0.01]"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {activeTab === "google" && (
+        <div className="space-y-5">
 
         {/* ── KPI 대시보드 ── */}
         <div>
@@ -457,6 +605,9 @@ export default function CaseDetailPage() {
             <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-white">💡 핵심 인사이트</h2>
             <p className="text-sm leading-relaxed text-gray-400">{c.insight}</p>
           </div>
+        )}
+
+        </div>
         )}
 
         <div className="flex items-center justify-between pt-2">

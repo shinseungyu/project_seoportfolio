@@ -25,6 +25,29 @@ export type SearchConsoleData = {
   history: number[];
 };
 
+export type NaverKeyword = {
+  keyword: string;
+  position: number;
+  impressions: number;
+  clicks: number;
+};
+
+export type NaverData = {
+  impressions: number;
+  clicks: number;
+  avgPosition: number;
+  period?: string;
+  keywords?: NaverKeyword[];
+  history?: Array<{ date: string; clicks: number; impressions: number }>;
+};
+
+export type GeoScreenshot = {
+  tool: "ChatGPT" | "Gemini" | "Perplexity" | "Copilot" | "Claude" | string;
+  prompt: string;
+  image: string; // public/ 기준 경로 예: /geo/carelec-chatgpt.png
+  date?: string;
+};
+
 export type Case = {
   engine: Engine;
   type: CaseType;
@@ -42,6 +65,9 @@ export type Case = {
   insight: string;
   ready: boolean;
   hasLiveDashboard?: boolean;
+  tier?: "rank1" | "page1";
+  naverData?: NaverData;
+  geoScreenshots?: GeoScreenshot[];
   topKeyword?: {
     keyword: string;
     rank: number;
@@ -60,6 +86,7 @@ export const googleSuccessCases: Case[] = [
     slug: "carelec",
     site: "carelec.kr",
     siteUrl: "https://carelec.kr",
+    tier: "page1",
     title: "전기차 정보 사이트 구글 상위 노출",
     summary: "기술 SEO + 구조화 데이터로 구글 노출 300% 달성",
     period: "2025.03 ~ 현재",
@@ -90,6 +117,7 @@ export const googleSuccessCases: Case[] = [
     type: "success",
     slug: "fundfinpro",
     site: "fundfinpro.com",
+    tier: "rank1",
     siteUrl: "https://fundfinpro.com",
     title: "금융 정보 사이트 구글 성과",
     summary: "금융 키워드 경쟁 시장에서 구글 상위 노출 달성",
@@ -108,6 +136,7 @@ export const googleSuccessCases: Case[] = [
     type: "success",
     slug: "carprotax",
     site: "carprotax.com",
+    tier: "page1",
     siteUrl: "https://carprotax.com",
     title: "자동차 세금 정보 사이트 구글 성과",
     summary: "자동차 세금·보험 키워드 구글 노출 성장",
@@ -126,6 +155,7 @@ export const googleSuccessCases: Case[] = [
     type: "success",
     slug: "hospetpay",
     site: "hospetpay.com",
+    tier: "rank1",
     siteUrl: "https://hospetpay.com",
     title: "반려동물 의료비 정보 사이트 구글 성과",
     summary: "펫 의료비 관련 키워드 구글 상위 노출 달성",
@@ -219,4 +249,4 @@ export const googleCases: Case[] = [
   ...googleOtherCases,
 ];
 
-export const allCases = [...googleSuccessCases, ...googleOtherCases, ...naverCases];
+export const allCases = [...googleSuccessCases, ...googleFailureCases, ...naverCases];

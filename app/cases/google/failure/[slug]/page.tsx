@@ -5,13 +5,14 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   AreaChart, Area, LineChart, Line,
+  BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import {
   ArrowLeft, ExternalLink, RefreshCw,
   Target, TrendingUp, TrendingDown, Eye, MousePointer, CalendarDays, Hash,
 } from "lucide-react";
-import { googleFailureCases } from "@/data/cases";
+import { googleFailureCases, type NaverData } from "@/data/cases";
 
 type DayRow = { date: string; clicks: number; impressions: number; ctr: number; position: number };
 type Keyword = { query: string; clicks: number; impressions: number; ctr: number; position: number };
@@ -106,6 +107,7 @@ export default function FailureCaseDetailPage() {
   const [data, setData] = useState<ApiData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState("");
+  const [activeTab, setActiveTab] = useState<"google" | "naver" | "geo">("google");
 
   const fetchData = async () => {
     setLoading(true);
@@ -140,11 +142,11 @@ export default function FailureCaseDetailPage() {
   const top10Chg = s ? pct(s.top10Count, s.prevTop10Count) : null;
 
   const kpis = [
-    { label: "총 클릭수",     value: (s?.totalClicks ?? 0).toLocaleString(), chg: clickChg, icon: MousePointer, color: "text-indigo-400", border: "border-indigo-500/20", bg: "bg-indigo-500/5" },
-    { label: "총 노출수",     value: (s?.totalImpressions ?? 0).toLocaleString(), chg: imprChg, icon: Eye, color: "text-red-400", border: "border-red-500/20", bg: "bg-red-500/5" },
-    { label: "평균 CTR",      value: `${s?.avgCtr ?? "0"}%`, chg: null, icon: TrendingUp, color: "text-violet-400", border: "border-violet-500/20", bg: "bg-violet-500/5" },
-    { label: "평균 순위",     value: `#${s?.avgPosition ?? "0"}`, chg: null, icon: Target, color: "text-amber-400", border: "border-amber-500/20", bg: "bg-amber-500/5" },
-    { label: "1페이지 키워드", value: `${s?.top10Count ?? 0}개`, chg: top10Chg, icon: Hash, color: "text-cyan-400", border: "border-cyan-500/20", bg: "bg-cyan-500/5" },
+    { label: "총 클릭수",      value: (s?.totalClicks ?? 0).toLocaleString(),      chg: clickChg,  icon: MousePointer, color: "text-indigo-400", border: "border-indigo-500/20", bg: "bg-indigo-500/5" },
+    { label: "총 노출수",      value: (s?.totalImpressions ?? 0).toLocaleString(), chg: imprChg,   icon: Eye,          color: "text-red-400",    border: "border-red-500/20",    bg: "bg-red-500/5" },
+    { label: "평균 CTR",       value: `${s?.avgCtr ?? "0"}%`,                      chg: null,       icon: TrendingUp,   color: "text-violet-400", border: "border-violet-500/20", bg: "bg-violet-500/5" },
+    { label: "평균 순위",      value: `#${s?.avgPosition ?? "0"}`,                 chg: null,       icon: Target,       color: "text-amber-400",  border: "border-amber-500/20",  bg: "bg-amber-500/5" },
+    { label: "1페이지 키워드", value: `${s?.top10Count ?? 0}개`,                   chg: top10Chg,  icon: Hash,         color: "text-cyan-400",   border: "border-cyan-500/20",   bg: "bg-cyan-500/5" },
   ];
 
   const rankColor = (pos: number) => {
@@ -194,7 +196,7 @@ export default function FailureCaseDetailPage() {
 
       <div className="relative mx-auto max-w-4xl space-y-5 px-6 py-8">
 
-        {/* 케이스 배너 */}
+        {/* 배너 */}
         <div className="relative overflow-hidden rounded-2xl border border-red-500/15 bg-gradient-to-br from-red-950/40 to-[#080c14] p-6">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
           <div className="absolute left-0 top-0 h-full w-0.5 bg-red-500" />
@@ -214,7 +216,146 @@ export default function FailureCaseDetailPage() {
           </div>
         </div>
 
-        {/* KPI */}
+        {/* 탭 */}
+        <div className="flex gap-1.5 rounded-2xl border border-white/8 bg-white/[0.02] p-1.5">
+          {(["google", "naver", "geo"] as const).map((tab) => {
+            const labels = { google: "🔵 Google", naver: "🟢 Naver", geo: "🤖 GEO" };
+            const descs  = { google: "검색엔진",   naver: "네이버",   geo: "생성형 AI" };
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 flex flex-col items-center gap-0.5 rounded-xl py-3.5 px-4 transition-all duration-200 ${
+                  activeTab === tab
+                    ? "bg-white/10 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-400 hover:bg-white/5"
+                }`}
+              >
+                <span className="text-sm font-black tracking-wide">{labels[tab]}</span>
+                <span className={`text-[10px] font-medium ${activeTab === tab ? "text-gray-400" : "text-gray-700"}`}>{descs[tab]}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Naver 탭 */}
+        {activeTab === "naver" && (() => {
+          const nd: NaverData | undefined = c.naverData;
+          if (!nd) return (
+            <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/8 bg-white/[0.02] py-24">
+              <span className="text-3xl">🚧</span>
+              <p className="text-sm font-bold text-white">네이버 데이터 미등록</p>
+              <p className="text-xs text-gray-600">cases.ts의 naverData 필드에 값을 입력하면 표시됩니다.</p>
+            </div>
+          );
+          const naverKpis = [
+            { label: "총 클릭수", value: nd.clicks.toLocaleString(),      color: "text-emerald-400", border: "border-emerald-500/20", bg: "bg-emerald-500/5", icon: MousePointer },
+            { label: "총 노출수", value: nd.impressions.toLocaleString(), color: "text-indigo-400",  border: "border-indigo-500/20",  bg: "bg-indigo-500/5",  icon: Eye },
+            { label: "평균 순위", value: `#${nd.avgPosition}`,            color: "text-amber-400",   border: "border-amber-500/20",   bg: "bg-amber-500/5",   icon: Target },
+          ];
+          return (
+            <div className="space-y-5">
+              {nd.period && <p className="text-[11px] text-gray-600 text-right">{nd.period}</p>}
+              <div className="grid grid-cols-3 gap-3">
+                {naverKpis.map(item => (
+                  <div key={item.label} className={`rounded-2xl border ${item.border} ${item.bg} p-4`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] text-gray-500">{item.label}</span>
+                      <item.icon size={12} className={item.color} />
+                    </div>
+                    <div className={`text-2xl font-extrabold tabular-nums ${item.color}`}>{item.value}</div>
+                  </div>
+                ))}
+              </div>
+              {nd.history && nd.history.length > 0 && (
+                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+                  <p className="text-sm font-bold text-white mb-1">클릭수 · 노출수 추이</p>
+                  <p className="text-[11px] text-gray-600 mb-4">네이버 서치어드바이저 데이터</p>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <AreaChart data={nd.history} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="nc-f" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="2 4" stroke="#ffffff06" vertical={false} />
+                      <XAxis dataKey="date" tick={{ fill: "#4b5563", fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                      <YAxis tick={{ fill: "#4b5563", fontSize: 10 }} tickLine={false} axisLine={false} width={36} />
+                      <Tooltip content={<ChartTip />} />
+                      <Area type="monotone" dataKey="impressions" stroke="#6366f1" strokeWidth={1.5} fill="none" dot={false} />
+                      <Area type="monotone" dataKey="clicks" stroke="#10b981" strokeWidth={2} fill="url(#nc-f)" dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              {nd.keywords && nd.keywords.length > 0 && (
+                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+                  <p className="text-sm font-bold text-white mb-1">키워드 순위</p>
+                  <p className="text-[11px] text-gray-600 mb-4">네이버 검색 상위 키워드</p>
+                  <div className="space-y-3">
+                    {nd.keywords.map(kw => {
+                      const p = kw.position;
+                      const color = p <= 3 ? "bg-emerald-500" : p <= 10 ? "bg-indigo-500" : "bg-amber-500";
+                      const textColor = p <= 3 ? "text-emerald-400" : p <= 10 ? "text-indigo-400" : "text-amber-400";
+                      const barW = Math.max(6, Math.round((30 / p) * 100));
+                      return (
+                        <div key={kw.keyword}>
+                          <div className="mb-1 flex items-center justify-between gap-3">
+                            <span className="truncate text-xs font-medium text-gray-200">{kw.keyword}</span>
+                            <div className="flex shrink-0 items-center gap-2">
+                              <span className="text-[11px] tabular-nums text-gray-600">{kw.impressions.toLocaleString()} 노출</span>
+                              <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold bg-white/5 ${textColor}`}>#{p}위</span>
+                            </div>
+                          </div>
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                            <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${barW}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* GEO 탭 */}
+        {activeTab === "geo" && (() => {
+          const shots = c.geoScreenshots;
+          if (!shots || shots.length === 0) return (
+            <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/8 bg-white/[0.02] py-24">
+              <span className="text-3xl">🤖</span>
+              <p className="text-sm font-bold text-white">GEO 캡처 미등록</p>
+              <p className="text-xs text-gray-600">cases.ts의 geoScreenshots 필드에 이미지 경로를 추가하면 표시됩니다.</p>
+            </div>
+          );
+          return (
+            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+              <p className="text-sm font-bold text-white mb-1">GEO · 생성형 엔진 최적화</p>
+              <p className="text-[11px] text-gray-600 mb-5">AI 답변 안에 이 사이트 정보가 포함된 캡처</p>
+              <div className="space-y-6">
+                {shots.map((shot, i) => (
+                  <div key={i} className="rounded-xl border border-white/5 overflow-hidden">
+                    <div className="flex items-center gap-3 px-4 py-2.5 bg-white/[0.03] border-b border-white/5">
+                      <span className="text-xs font-black text-white">{shot.tool}</span>
+                      <span className="text-white/20">·</span>
+                      <span className="text-xs text-gray-500 flex-1 truncate">"{shot.prompt}"</span>
+                      {shot.date && <span className="text-[10px] text-gray-700 shrink-0">{shot.date}</span>}
+                    </div>
+                    <img src={shot.image} alt={`${shot.tool} - ${shot.prompt}`} className="w-full object-contain bg-white/[0.01]" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Google 탭 */}
+        {activeTab === "google" && (
+        <div className="space-y-5">
+
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-bold text-white">Search Console 핵심 지표</h2>
@@ -243,7 +384,6 @@ export default function FailureCaseDetailPage() {
           </div>
         </div>
 
-        {/* 그래프 2개 위아래 */}
         {!loading && chartData.length > 0 && (
           <div className="space-y-3">
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
@@ -304,7 +444,6 @@ export default function FailureCaseDetailPage() {
           </div>
         )}
 
-        {/* 키워드 순위 바 */}
         {!loading && filteredKw.length > 0 && (
           <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
             <div className="mb-5 flex items-center justify-between">
@@ -342,12 +481,10 @@ export default function FailureCaseDetailPage() {
           </div>
         )}
 
-        {/* 운영 기간 */}
         {(c.period !== "준비 중" || s?.firstSeen) && (
           <PeriodCard period={c.period} firstSeen={s?.firstSeen} />
         )}
 
-        {/* 목표 & 전략 */}
         {(c.goal || c.strategy.length > 0) && (
           <div className="grid gap-4 md:grid-cols-2">
             {c.goal && (
@@ -375,7 +512,6 @@ export default function FailureCaseDetailPage() {
           </div>
         )}
 
-        {/* 타임라인 */}
         {c.timeline.length > 0 && (
           <div className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
             <h2 className="mb-5 text-xs font-bold uppercase tracking-wide text-white">실행 타임라인</h2>
@@ -397,12 +533,14 @@ export default function FailureCaseDetailPage() {
           </div>
         )}
 
-        {/* 인사이트 */}
         {c.insight && (
           <div className="rounded-2xl border border-red-500/15 bg-red-500/[0.03] p-5">
             <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-white">💡 핵심 인사이트</h2>
             <p className="text-sm leading-relaxed text-gray-400">{c.insight}</p>
           </div>
+        )}
+
+        </div>
         )}
 
         <div className="flex items-center justify-between pt-2">
