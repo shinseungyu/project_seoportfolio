@@ -72,6 +72,7 @@ export type Case = {
     keyword: string;
     rank: number;
   };
+  featuredKeywords?: string[];
   searchConsole?: SearchConsoleData;
 };
 
@@ -92,6 +93,12 @@ export const googleSuccessCases: Case[] = [
     period: "2025.03 ~ 현재",
     category: "전기차 / 자동차",
     goal: "전기차 보조금·충전 관련 키워드 구글 1페이지 진입",
+    geoScreenshots: [
+      { tool: "ChatGPT", prompt: "수소차 보조금 계산기 추천해주라", image: "/수소차보조금계산기.png" },
+      { tool: "ChatGPT", prompt: "수소차 보조금 관련 사이트 추천해줘", image: "/수소차보조금관련사이트.png" },
+      { tool: "ChatGPT", prompt: "전기차 보조금 계산기 사이트 추천해줘 10개만", image: "/전기차보조금계산기사이트10개.png" },
+      { tool: "ChatGPT", prompt: "전기차 보조금 계산기 사이트 10개 (계속)", image: "/전기차보조금계산기사이트10개2.png" },
+    ],
     strategy: [
       "Core Web Vitals 최적화 (LCP 4.2s → 1.8s)",
       "JSON-LD 구조화 데이터 전체 적용",
@@ -130,6 +137,13 @@ export const googleSuccessCases: Case[] = [
     insight: "",
     ready: true,
     hasLiveDashboard: true,
+    geoScreenshots: [
+      { tool: "ChatGPT", prompt: "청년미래적금 계산 관련 사이트 추천해줘", image: "/청년미래적금계산.png" },
+      { tool: "ChatGPT", prompt: "청년미래적금 만기수령액 계산사이트 추천해주라", image: "/청년미래적금만기수령액계산.png" },
+      { tool: "ChatGPT", prompt: "청년미래적금 관련 사이트 추천해줘", image: "/청년미래적금관련사이트.png" },
+      { tool: "ChatGPT", prompt: "청년미래적금 사이트 추천해줘", image: "/청년미래적금사이트.png" },
+      { tool: "ChatGPT", prompt: "청년미래적금 사이트 추천해줘 (현실 추천 조합)", image: "/청년미래적금사이트추천에서 이렇게 세개쓰라고 조언 토스랑.png" },
+    ],
   },
   {
     engine: "google",
@@ -149,6 +163,9 @@ export const googleSuccessCases: Case[] = [
     insight: "",
     ready: true,
     hasLiveDashboard: true,
+    geoScreenshots: [
+      { tool: "ChatGPT", prompt: "자동차 취등록세 계산기 관련 사이트 추천해줘", image: "/자동차취등록세계산.png" },
+    ],
   },
   {
     engine: "google",
@@ -157,6 +174,7 @@ export const googleSuccessCases: Case[] = [
     site: "hospetpay.com",
     tier: "rank1",
     siteUrl: "https://hospetpay.com",
+    featuredKeywords: ["강아지 병원비계산기", "고양이 병원비계산기"],
     title: "반려동물 의료비 정보 사이트 구글 성과",
     summary: "펫 의료비 관련 키워드 구글 상위 노출 달성",
     period: "준비 중",
@@ -168,6 +186,12 @@ export const googleSuccessCases: Case[] = [
     insight: "",
     ready: true,
     hasLiveDashboard: true,
+    geoScreenshots: [
+      { tool: "ChatGPT", prompt: "고양이 병원비 계산 관련사이트 추천좀", image: "/hospetpay고양이병원비계산지피티.png" },
+      { tool: "ChatGPT", prompt: "강아지 병원비 계산 관련 사이트 추천해주라", image: "/강아지병원비계산.png" },
+      { tool: "ChatGPT", prompt: "강아지 병원비 관련 웹사이트 추천해줘", image: "/강아지병원비관련웹사이트.png" },
+      { tool: "ChatGPT", prompt: "고양이 병원비 관련 웹사이트 추천해줘", image: "/고양이병원비관련웹사이트.png" },
+    ],
   },
 ];
 

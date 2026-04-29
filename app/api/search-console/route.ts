@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       }),
       sc.searchanalytics.query({
         siteUrl: SITE_URL,
-        requestBody: { startDate: range.startDate, endDate: range.endDate, dimensions: ["query"], rowLimit: 100 },
+        requestBody: { startDate: range.startDate, endDate: range.endDate, dimensions: ["query"], rowLimit: 500 },
       }),
       sc.searchanalytics.query({
         siteUrl: SITE_URL,
@@ -125,7 +125,7 @@ export async function GET(req: NextRequest) {
     // 이전 기간 키워드 (top10 비교용)
     const prevQueryRes = await sc.searchanalytics.query({
       siteUrl: SITE_URL,
-      requestBody: { startDate: prevRange.startDate, endDate: prevRange.endDate, dimensions: ["query"], rowLimit: 100 },
+      requestBody: { startDate: prevRange.startDate, endDate: prevRange.endDate, dimensions: ["query"], rowLimit: 500 },
     });
     const prevTop10Count = (prevQueryRes.data.rows ?? []).filter((r) => (r.position ?? 99) <= 10).length;
 

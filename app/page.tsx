@@ -142,23 +142,11 @@ function CaseCard({ c, isLight = false }: { c: Case, isLight?: boolean }) {
         </div>
       </div>
 
-      {/* Keyword + Engine Rank Badge */}
+      {/* Tab Badges + Engine Rank Badge */}
       <div className="flex flex-wrap items-center gap-2 mb-4 z-10 relative">
-        <span className={`text-[11px] font-semibold rounded-full px-3 py-1 ${isLight ? "bg-slate-100/80 text-slate-600" : "bg-white/5 text-zinc-400"}`}>
-          {coreKeyword}
-        </span>
-        {!loading && displayAvgPosRaw > 0 && (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-1 border ${
-            displayAvgPosRaw <= 3
-              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-              : displayAvgPosRaw <= 10
-                ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                : "bg-rose-500/10 text-rose-600 border-rose-500/20"
-          }`}>
-            <span className="font-black">{c.engine === "google" ? "G" : "N"}</span>
-            {displayAvgPosRaw <= 3 ? "1위 달성" : displayAvgPosRaw <= 10 ? "1페이지" : "1페이지 밖"}
-          </span>
-        )}
+        <span className="rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-500">🔵 Google</span>
+        {c.naverData && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">🟢 Naver</span>}
+        {c.geoScreenshots && c.geoScreenshots.length > 0 && <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-2 py-0.5 text-[10px] font-semibold text-violet-500">🤖 GEO</span>}
       </div>
 
       <div className={`relative z-10 mb-4 h-48 w-full rounded-xl border p-4 flex items-end justify-around gap-4 transition-all shadow-inner overflow-hidden ${

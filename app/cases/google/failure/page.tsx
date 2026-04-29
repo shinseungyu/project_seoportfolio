@@ -89,7 +89,13 @@ export default function GoogleFailureListPage() {
                   <p className="mt-2 text-[11px] text-gray-600">📅 {c.period}</p>
                 )}
 
-                <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4">
+                <div className="mt-4 flex gap-1.5">
+                  <span className="rounded-full border border-indigo-500/20 bg-indigo-500/8 px-2 py-0.5 text-[10px] font-semibold text-indigo-400">🔵 Google</span>
+                  {c.naverData && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/8 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">🟢 Naver</span>}
+                  {c.geoScreenshots && c.geoScreenshots.length > 0 && <span className="rounded-full border border-violet-500/20 bg-violet-500/8 px-2 py-0.5 text-[10px] font-semibold text-violet-400">🤖 GEO</span>}
+                </div>
+
+                <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4">
                   <span className="text-[11px] text-gray-700">Search Console 데이터 포함</span>
                   <span className="flex items-center gap-1 text-xs font-medium text-red-400 group-hover:gap-2 transition-all">
                     케이스 보기 <ArrowRight size={11} />

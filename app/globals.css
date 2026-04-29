@@ -98,7 +98,15 @@
   }
 }
 
+@keyframes geo-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @layer utilities {
+  .animate-geo-fade {
+    animation: geo-fade 0.35s ease-out;
+  }
   .glass {
     @apply bg-white/[0.02] backdrop-blur-md border border-white/[0.05] shadow-2xl;
   }

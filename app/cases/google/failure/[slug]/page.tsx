@@ -11,6 +11,7 @@ import {
 import {
   ArrowLeft, ExternalLink, RefreshCw,
   Target, TrendingUp, TrendingDown, Eye, MousePointer, CalendarDays, Hash,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { googleFailureCases, type NaverData } from "@/data/cases";
 
@@ -108,6 +109,7 @@ export default function FailureCaseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState("");
   const [activeTab, setActiveTab] = useState<"google" | "naver" | "geo">("google");
+  const [geoIdx, setGeoIdx] = useState(0);
 
   const fetchData = async () => {
     setLoading(true);
@@ -157,10 +159,17 @@ export default function FailureCaseDetailPage() {
     return            { bar: "bg-gray-600",       text: "text-gray-500",    bg: "bg-white/5" };
   };
 
-  const filteredKw = keywords
-    .filter((kw) => kw.position > 3)
+  const featured = c.featuredKeywords ?? [];
+  const normalize = (s: string) => s.replace(/\s/g, "").toLowerCase();
+  const pinnedKw = featured
+    .map(f => keywords.find(k => normalize(k.query) === normalize(f)))
+    .filter(Boolean) as typeof keywords;
+  const pinnedQueries = new Set(pinnedKw.map(k => k.query));
+  const restKw = keywords
+    .filter(k => !pinnedQueries.has(k.query))
     .sort((a, b) => b.impressions - a.impressions)
-    .slice(0, 6);
+    .slice(0, Math.max(0, 6 - pinnedKw.length));
+  const filteredKw = [...pinnedKw, ...restKw];
 
   return (
     <main className="relative min-h-screen bg-[#080c14]">
@@ -331,23 +340,55 @@ export default function FailureCaseDetailPage() {
               <p className="text-xs text-gray-600">cases.ts의 geoScreenshots 필드에 이미지 경로를 추가하면 표시됩니다.</p>
             </div>
           );
+          const cur = shots[geoIdx];
           return (
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
               <p className="text-sm font-bold text-white mb-1">GEO · 생성형 엔진 최적화</p>
-              <p className="text-[11px] text-gray-600 mb-5">AI 답변 안에 이 사이트 정보가 포함된 캡처</p>
-              <div className="space-y-6">
-                {shots.map((shot, i) => (
-                  <div key={i} className="rounded-xl border border-white/5 overflow-hidden">
-                    <div className="flex items-center gap-3 px-4 py-2.5 bg-white/[0.03] border-b border-white/5">
-                      <span className="text-xs font-black text-white">{shot.tool}</span>
-                      <span className="text-white/20">·</span>
-                      <span className="text-xs text-gray-500 flex-1 truncate">"{shot.prompt}"</span>
-                      {shot.date && <span className="text-[10px] text-gray-700 shrink-0">{shot.date}</span>}
-                    </div>
-                    <img src={shot.image} alt={`${shot.tool} - ${shot.prompt}`} className="w-full object-contain bg-white/[0.01]" />
-                  </div>
-                ))}
+              <p className="text-[11px] text-gray-600 mb-4">ChatGPT 등 AI 답변 안에 이 사이트가 직접 언급된 캡처 모음</p>
+
+              {/* 설명 카드 */}
+              <div key={`desc-${geoIdx}`} className="animate-geo-fade mb-4 flex items-start gap-3 rounded-xl border border-indigo-500/15 bg-indigo-500/[0.05] px-4 py-3">
+                <span className="shrink-0 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[11px] font-bold text-indigo-400">{cur.tool}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium leading-relaxed text-gray-200">"{cur.prompt}"</p>
+                  {cur.date && <p className="mt-1 text-[10px] text-gray-600">{cur.date}</p>}
+                </div>
+                <span className="shrink-0 tabular-nums text-[11px] text-gray-700">{geoIdx + 1}/{shots.length}</span>
               </div>
+
+              {/* 이미지 + 사이드 버튼 */}
+              <div className="relative overflow-hidden rounded-xl border border-white/5">
+                <div key={geoIdx} className="animate-geo-fade">
+                  <img src={cur.image} alt={`${cur.tool} - ${cur.prompt}`} className="w-full object-contain bg-white/[0.01]" />
+                </div>
+                {shots.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setGeoIdx(i => Math.max(0, i - 1))}
+                      disabled={geoIdx === 0}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70 disabled:opacity-0"
+                    ><ChevronLeft size={16} /></button>
+                    <button
+                      onClick={() => setGeoIdx(i => Math.min(shots.length - 1, i + 1))}
+                      disabled={geoIdx === shots.length - 1}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70 disabled:opacity-0"
+                    ><ChevronRight size={16} /></button>
+                  </>
+                )}
+              </div>
+
+              {/* 도트 */}
+              {shots.length > 1 && (
+                <div className="mt-3 flex justify-center gap-1.5">
+                  {shots.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setGeoIdx(i)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${i === geoIdx ? "w-5 bg-indigo-400" : "w-1.5 bg-white/20 hover:bg-white/40"}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           );
         })()}
@@ -449,7 +490,7 @@ export default function FailureCaseDetailPage() {
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <p className="text-sm font-bold text-white">경쟁 키워드 순위</p>
-                <p className="text-[11px] text-gray-600 mt-0.5">노출 많은 순 · 4위 이하 상위 6개</p>
+                <p className="text-[11px] text-gray-600 mt-0.5">노출 많은 순 · 상위 6개</p>
               </div>
               <div className="flex gap-3 text-[10px] text-gray-700">
                 <span className="flex items-center gap-1"><span className="h-1.5 w-2 rounded-full bg-emerald-500" />1~5위</span>
@@ -468,7 +509,7 @@ export default function FailureCaseDetailPage() {
                       <div className="flex shrink-0 items-center gap-2">
                         <span className="text-[11px] tabular-nums text-gray-600">{kw.impressions.toLocaleString()} 노출</span>
                         <span className="text-[11px] tabular-nums text-gray-600">{(kw.ctr * 100).toFixed(1)}% CTR</span>
-                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${rc.bg} ${rc.text}`}>#{Math.round(kw.position)}위</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${rc.bg} ${rc.text}`}>#{Math.floor(kw.position)}위</span>
                       </div>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
