@@ -3,11 +3,11 @@
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { MousePointer2, MoveRight, Layers, TrendingUp, TrendingDown, Lock, ArrowUpRight, Trophy, CheckCircle2, Target } from "lucide-react";
+import { MousePointer2, MoveRight, Layers, TrendingUp, ArrowUpRight } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { naverCases, googleSuccessCases, googleFailureCases, type Case } from "@/data/cases";
+import { googleSuccessCases, googleFailureCases, type Case } from "@/data/cases";
 import { AboutMe } from "@/components/about-me";
 
 const HeroScene = dynamic(() => import("@/components/hero-scene-v2").then((mod) => mod.HeroSceneV2), {
@@ -30,39 +30,14 @@ const typeStyle = {
   },
   failure: {
     label: "Case Study",
-    bg: "bg-rose-500/10",
-    text: "text-rose-400",
-    border: "border-rose-500/20",
-    icon: TrendingDown,
-    accent: "rose",
+    bg: "bg-indigo-500/10",
+    text: "text-indigo-400",
+    border: "border-indigo-500/20",
+    icon: TrendingUp,
+    accent: "indigo",
   },
 };
 
-function MiniBarChart({ data, height }: { data: number[], height: number }) {
-  if (!data || data.length === 0) return null;
-  const sampleData = data.slice(-30);
-  const max = Math.max(...sampleData, 1);
-
-  return (
-    <div className="flex items-end justify-between w-full gap-[2px]" style={{ height: height }}>
-      {sampleData.map((d, i) => {
-        const heightPct = Math.max((d / max) * 100, 4);
-        return (
-          <div key={i} className="flex-1 h-full bg-indigo-500/5 rounded-t-sm relative group">
-            <div 
-              className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-sm transition-all duration-700 ease-out"
-              style={{ height: `${heightPct}%` }}
-            />
-            {/* Tooltip on hover */}
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-indigo-500 text-[8px] px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-white font-bold">
-              {d}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 function CaseCard({ c, isLight = false }: { c: Case, isLight?: boolean }) {
   const ts = typeStyle[c.type] || typeStyle.success;
@@ -142,11 +117,23 @@ function CaseCard({ c, isLight = false }: { c: Case, isLight?: boolean }) {
         </div>
       </div>
 
-      {/* Tab Badges + Engine Rank Badge */}
-      <div className="flex flex-wrap items-center gap-2 mb-4 z-10 relative">
-        <span className="rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-500">🔵 Google</span>
-        {c.naverData && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">🟢 Naver</span>}
-        {c.geoScreenshots && c.geoScreenshots.length > 0 && <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-2 py-0.5 text-[10px] font-semibold text-violet-500">🤖 GEO</span>}
+      {/* 운영기간 + 대표키워드 */}
+      <div className="flex items-center justify-between gap-2 mb-4 z-10 relative h-5">
+        {loading ? (
+          <div className={`h-4 w-24 rounded-full animate-pulse ${isLight ? "bg-slate-200" : "bg-white/5"}`} />
+        ) : s?.firstSeen ? (
+          <span className={`text-[11px] font-bold ${isLight ? "text-slate-400" : "text-zinc-500"}`}>
+            <span className={isLight ? "text-slate-800" : "text-white"}>
+              {new Date(s.firstSeen).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\. /g, ".").replace(/\.$/, "")}
+            </span>
+            {" ~ 현재"}
+          </span>
+        ) : null}
+        {c.repKeyword && (
+          <span className={`text-[10px] font-semibold truncate max-w-[140px] text-right ${isLight ? "text-slate-400" : "text-zinc-500"}`}>
+            {c.repKeyword}
+          </span>
+        )}
       </div>
 
       <div className={`relative z-10 mb-4 h-48 w-full rounded-xl border p-4 flex items-end justify-around gap-4 transition-all shadow-inner overflow-hidden ${
@@ -222,58 +209,33 @@ function CaseCard({ c, isLight = false }: { c: Case, isLight?: boolean }) {
         <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isLight ? "text-indigo-500" : "text-indigo-400"}`}>
           자세히 보기
         </span>
-        <ArrowUpRight size={12} className={`transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${isLight ? "text-indigo-400" : "text-indigo-500"}`} />
+        <div className="flex items-center gap-1.5">
+          {c.badges?.map((badge) =>
+            badge === "snippet" ? (
+              <span key="snippet" className="flex items-center gap-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-black text-emerald-400 uppercase tracking-wide">
+                ✦ 스니펫
+              </span>
+            ) : (
+              <img
+                key={badge}
+                src={
+                  badge === "google" ? "/구글.png"
+                  : badge === "naver" ? "/naver_icon.png"
+                  : badge === "claude" ? "/claude_icon.svg"
+                  : "/chatgpt.png"
+                }
+                alt={badge}
+                className="h-4 w-4 rounded-sm object-contain"
+              />
+            )
+          )}
+          <ArrowUpRight size={12} className={`ml-1 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${isLight ? "text-indigo-400" : "text-indigo-500"}`} />
+        </div>
       </div>
     </Link>
   );
 }
 
-function PerformancePanelContent({
-  title, accentText, accentColor,
-  description, badgeText, BadgeIcon, badgeColorClass,
-  tier,
-}: {
-  title: string; accentText: string; accentColor: string;
-  description: string; badgeText: string; BadgeIcon: React.FC<{ size?: number; className?: string }>; badgeColorClass: string;
-  tier: "rank1" | "page1" | "failure";
-}) {
-  const cases = [...googleSuccessCases, ...googleFailureCases, ...naverCases].filter(c => {
-    if (!c.ready) return false;
-    if (tier === "failure") return c.type === "failure";
-    if (tier === "rank1") return c.type === "success" && c.tier === "rank1";
-    return c.type === "success" && c.tier === "page1";
-  });
-
-  return (
-    <div className="panel-content w-full max-w-7xl">
-      <div className="grid lg:grid-cols-[260px,1fr] gap-10 items-start">
-        <div className="space-y-5">
-          <div className={`inline-flex items-center gap-2 rounded-full border bg-white px-5 py-2 shadow-sm ${badgeColorClass}`}>
-            <BadgeIcon size={13} />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">{badgeText}</span>
-          </div>
-          <div>
-            <h3 className="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none">{title}</h3>
-            <h3 className={`text-4xl font-black uppercase tracking-tighter leading-none ${accentColor}`}>{accentText}</h3>
-          </div>
-          <p className="text-sm font-medium text-slate-500 leading-relaxed">{description}</p>
-        </div>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          {cases.length > 0
-            ? cases.map(c => <div key={c.slug} className="min-h-[320px]"><CaseCard c={c} isLight /></div>)
-            : (
-              <div className="col-span-2 flex flex-col items-center justify-center h-48 gap-3 rounded-2xl border border-dashed border-slate-300">
-                <Lock size={20} className="text-slate-300" />
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">준비 중</p>
-              </div>
-            )
-          }
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function HomePage() {
   const container = useRef<HTMLDivElement>(null);
@@ -463,14 +425,14 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full" />
             </div>
             <div className="space-y-4">
-              <span className="text-sm font-black text-indigo-500 uppercase tracking-[0.6em] block">Technical Registry</span>
+              <span className="text-sm font-black text-indigo-500 uppercase tracking-[0.6em] block">SEO Performance</span>
               <h2 className="text-[10rem] font-black text-slate-900 leading-[0.8] uppercase tracking-tighter mix-blend-multiply opacity-90">
-                Data<br />Archive
+                Port<br />folio
               </h2>
             </div>
             <p className="mt-16 text-slate-400 text-xl font-medium uppercase tracking-[0.5em] flex items-center justify-center gap-4">
               <span className="h-[1px] w-12 bg-slate-200" />
-              Algorithm Performance Index
+              Portfolio Index
               <span className="h-[1px] w-12 bg-slate-200" />
             </p>
           </div>
@@ -479,46 +441,43 @@ export default function HomePage() {
           </div>
         </div>
         
-        {/* Panel: 1위 달성 프로젝트 */}
-        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
-          <PerformancePanelContent
-            title="1위 달성"
-            accentText="프로젝트"
-            accentColor="text-indigo-600"
-            description="핵심 키워드에서 검색 1위를 달성한 사례입니다. 기술 SEO와 콘텐츠 전략이 결합된 결과입니다."
-            badgeText="Tier 01 · Rank #1 Achieved"
-            BadgeIcon={Trophy}
-            badgeColorClass="border-indigo-200 text-indigo-600"
-            tier="rank1"
-          />
+        {/* Panel: carelec + carprotax */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
+          <div className="panel-content w-full max-w-5xl grid sm:grid-cols-2 gap-6">
+            {[googleSuccessCases.find(c => c.slug === "carelec")!, googleSuccessCases.find(c => c.slug === "carprotax")!].map(c => (
+              <div key={c.slug} className="min-h-[400px]"><CaseCard c={c} isLight /></div>
+            ))}
+          </div>
         </div>
 
-        {/* Panel: 1페이지 안착 프로젝트 */}
-        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
-          <PerformancePanelContent
-            title="1페이지"
-            accentText="안착 프로젝트"
-            accentColor="text-amber-500"
-            description="구글·네이버 검색 1페이지(Top 10)에 안착한 사례입니다. 지속적인 트래픽 유입을 실현했습니다."
-            badgeText="Tier 02 · Page 1 Secured"
-            BadgeIcon={CheckCircle2}
-            badgeColorClass="border-amber-200 text-amber-600"
-            tier="page1"
-          />
+        {/* Panel: fundfinpro + hospetpay */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
+          <div className="panel-content w-full max-w-5xl grid sm:grid-cols-2 gap-6">
+            {[googleSuccessCases.find(c => c.slug === "fundfinpro")!, googleSuccessCases.find(c => c.slug === "hospetpay")!].map(c => (
+              <div key={c.slug} className="min-h-[400px]"><CaseCard c={c} isLight /></div>
+            ))}
+          </div>
         </div>
 
-        {/* Panel: 실패 & 인사이트 */}
-        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 flex-col items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0 bg-rose-50/20">
-          <PerformancePanelContent
-            title="실패 &"
-            accentText="인사이트"
-            accentColor="text-rose-500"
-            description="실패한 프로젝트에서 얻은 인사이트입니다. 무엇이 잘못됐는지, 그리고 무엇을 배웠는지."
-            badgeText="Strategic Retrospective"
-            BadgeIcon={Target}
-            badgeColorClass="border-rose-200 text-rose-600"
-            tier="failure"
-          />
+        {/* Panel: gwanse + newsioo */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
+          <div className="panel-content w-full max-w-5xl grid sm:grid-cols-2 gap-6">
+            {[googleSuccessCases.find(c => c.slug === "gwanse")!, googleFailureCases.find(c => c.slug === "newsioo")!].map(c => (
+              <div key={c.slug} className="min-h-[400px]"><CaseCard c={c} isLight /></div>
+            ))}
+          </div>
+        </div>
+
+        {/* Panel: carpaypro */}
+        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
+          <div className="panel-content w-full max-w-5xl grid sm:grid-cols-2 gap-6">
+            <div className="min-h-[400px]">
+              <CaseCard c={googleFailureCases.find(c => c.slug === "carpaypro")!} isLight />
+            </div>
+            <div className="min-h-[400px] flex items-center justify-center rounded-2xl border border-dashed border-slate-200">
+              <p className="text-sm font-bold text-slate-300 uppercase tracking-widest">Coming Soon</p>
+            </div>
+          </div>
         </div>
 
         {/* End Panel */}

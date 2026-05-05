@@ -18,10 +18,10 @@ export function AboutMe() {
     {
       phase: "01",
       title: "Strategic Discovery",
-      subtitle: "Planning & Strategy",
+      subtitle: "Keyword & Intent Research",
       icon: Layout,
-      tags: ["Strategy", "UX Design"],
-      desc: "비즈니스의 목적을 분석하고 타겟 키워드에 최적화된 시각적 전략을 수립합니다. 단순 디자인을 넘어 전술적인 기획으로부터 성장의 단초를 찾습니다.",
+      tags: ["Keyword Research", "Search Intent", "Gap Analysis"],
+      desc: "검색 의도를 분석해 빠르게 상위 노출이 가능한 키워드를 발굴했습니다. 경쟁사 갭 분석과 토픽 클러스터 설계로 검색엔진이 전문성을 인식할 수 있는 구조를 설계했습니다.",
       bg: "bg-[#050505]",
       accent: "text-indigo-400",
       glow: "from-indigo-500/10"
@@ -29,10 +29,10 @@ export function AboutMe() {
     {
       phase: "02",
       title: "Semantic Engineering",
-      subtitle: "0 to 1 SEO Build",
+      subtitle: "Technical SEO Architecture",
       icon: Server,
-      tags: ["HTML", "Semantic", "Schema"],
-      desc: "검색 엔진이 가장 선호하는 시멘틱 마크업을 통해 사이트의 뼈대를 구축합니다. 0에서 1을 만드는 과정에 이미 완벽한 SEO 관점을 녹여냅니다.",
+      tags: ["Core Web Vitals", "Schema Markup", "Crawlability"],
+      desc: "구글이 선호하는 시멘틱 구조와 JSON-LD 스키마를 기반으로 사이트를 설계했습니다. Core Web Vitals 최적화와 크롤 예산 관리까지, 기술 SEO의 모든 레이어를 처음부터 녹여냈습니다.",
       bg: "bg-[#060606]",
       accent: "text-emerald-400",
       glow: "from-emerald-500/10"
@@ -40,10 +40,10 @@ export function AboutMe() {
     {
       phase: "03",
       title: "AI-Powered Efficiency",
-      subtitle: "Augmented Development",
+      subtitle: "GEO & Content Scaling",
       icon: Sparkles,
-      tags: ["Vercel AI", "v0", "Cursor"],
-      desc: "디자인과 개발 전반에 AI를 활용하여 극강의 효율을 만들어냅니다. 기술의 한계를 AI로 돌파하여 고퀄리티 결과물을 빠른 속도로 제공합니다.",
+      tags: ["GEO", "E-E-A-T", "Content Cluster"],
+      desc: "AI 답변 엔진(ChatGPT·Gemini)에 인용되는 GEO 최적화와 E-E-A-T 신호 강화를 병행했습니다. 콘텐츠 클러스터를 AI로 빠르게 확장해 토픽 권위를 단기간에 확보했습니다.",
       bg: "bg-[#050505]",
       accent: "text-rose-400",
       glow: "from-rose-500/10"
@@ -51,10 +51,10 @@ export function AboutMe() {
     {
       phase: "04",
       title: "End-to-End Delivery",
-      subtitle: "A to Z Implementation",
+      subtitle: "Deploy & Performance Tracking",
       icon: Target,
-      tags: ["Vercel", "PHP", "Git", "Deploy"],
-      desc: "기획부터 퍼블리싱, 배포까지 전 과정을 직접 책임집니다. 디자인에서 배포까지의 모든 접점을 제어함으로써 완벽한 최적화 시스템을 완성합니다.",
+      tags: ["Search Console", "CTR Optimization", "Rank Tracking"],
+      desc: "배포 이후가 진짜 시작이었습니다. Search Console 데이터를 기반으로 저CTR 키워드를 집중 개선했고, 순위 변동을 추적하며 지속적으로 퍼포먼스를 끌어올렸습니다.",
       bg: "bg-[#070707]",
       accent: "text-indigo-400",
       glow: "from-indigo-500/10"

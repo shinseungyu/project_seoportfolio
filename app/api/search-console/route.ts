@@ -11,6 +11,7 @@ const SITE_MAP: Record<string, string> = {
   hospetpay:  "sc-domain:hospetpay.com",
   newsioo:    "sc-domain:newsioo.com",
   carpaypro:  "sc-domain:carpaypro.com",
+  gwanse:     "sc-domain:gwanse.kr",
 };
 
 function getDateRange(daysAgo: number, spanDays: number) {

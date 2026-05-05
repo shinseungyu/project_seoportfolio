@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   AreaChart, Area, LineChart, Line,
-  BarChart, Bar,
+  BarChart, Bar, Cell, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import {
@@ -13,7 +13,7 @@ import {
   Target, TrendingUp, TrendingDown, Eye, MousePointer, CalendarDays, Hash,
   ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { googleFailureCases, type NaverData } from "@/data/cases";
+import { googleFailureCases, googleSuccessCases, type NaverData } from "@/data/cases";
 
 type DayRow = { date: string; clicks: number; impressions: number; ctr: number; position: number };
 type Keyword = { query: string; clicks: number; impressions: number; ctr: number; position: number };
@@ -159,6 +159,26 @@ export default function FailureCaseDetailPage() {
     return            { bar: "bg-gray-600",       text: "text-gray-500",    bg: "bg-white/5" };
   };
 
+  const ALL_ORDER: { slug: string; type: "success" | "failure" }[] = [
+    { slug: "carelec",    type: "success" },
+    { slug: "carprotax",  type: "success" },
+    { slug: "fundfinpro", type: "success" },
+    { slug: "hospetpay",  type: "success" },
+    { slug: "gwanse",     type: "success" },
+    { slug: "newsioo",    type: "failure" },
+    { slug: "carpaypro",  type: "failure" },
+  ];
+  type NavInfo = { slug: string; site: string; repKeyword?: string; title: string; href: string };
+  const toNav = (e: { slug: string; type: "success" | "failure" }): NavInfo | null => {
+    const found = e.type === "success"
+      ? googleSuccessCases.find(x => x.slug === e.slug)
+      : googleFailureCases.find(x => x.slug === e.slug);
+    return found ? { slug: found.slug, site: found.site, repKeyword: found.repKeyword, title: found.title, href: `/cases/google/${e.type}/${found.slug}` } : null;
+  };
+  const allIdx = ALL_ORDER.findIndex(x => x.slug === slug);
+  const prevNav = allIdx > 0 ? toNav(ALL_ORDER[allIdx - 1]) : null;
+  const nextNav = allIdx < ALL_ORDER.length - 1 ? toNav(ALL_ORDER[allIdx + 1]) : null;
+
   const featured = c.featuredKeywords ?? [];
   const normalize = (s: string) => s.replace(/\s/g, "").toLowerCase();
   const pinnedKw = featured
@@ -173,9 +193,42 @@ export default function FailureCaseDetailPage() {
 
   return (
     <main className="relative min-h-screen bg-[#080c14]">
+
+      {/* ── 플로팅 이전/다음 버튼 ── */}
+      {prevNav && (
+        <Link
+          href={prevNav.href}
+          className="fixed left-0 top-1/2 -translate-y-1/2 z-30 group flex items-center gap-3 rounded-r-2xl border border-l-0 border-indigo-400/30 bg-gradient-to-r from-indigo-700 to-indigo-600 pl-3 pr-3 py-4 md:pl-4 md:pr-5 md:py-5 shadow-2xl shadow-indigo-900/70 backdrop-blur-sm transition-all duration-300 hover:from-indigo-600 hover:to-indigo-500 md:hover:pr-7 hover:shadow-indigo-500/50"
+        >
+          <ChevronLeft size={20} className="text-white shrink-0" />
+          <div className="hidden md:flex flex-col gap-0.5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-200/60">이전 포트폴리오</span>
+            <span className="text-sm font-extrabold text-white leading-tight">{prevNav.site}</span>
+            {prevNav.repKeyword && (
+              <span className="text-[11px] text-indigo-200/70 truncate max-w-[120px]">{prevNav.repKeyword}</span>
+            )}
+          </div>
+        </Link>
+      )}
+      {nextNav && (
+        <Link
+          href={nextNav.href}
+          className="fixed right-0 top-1/2 -translate-y-1/2 z-30 group flex items-center gap-3 rounded-l-2xl border border-r-0 border-indigo-400/30 bg-gradient-to-l from-indigo-700 to-indigo-600 pr-3 pl-3 py-4 md:pr-4 md:pl-5 md:py-5 shadow-2xl shadow-indigo-900/70 backdrop-blur-sm transition-all duration-300 hover:from-indigo-600 hover:to-indigo-500 md:hover:pl-7 hover:shadow-indigo-500/50"
+        >
+          <div className="hidden md:flex flex-col gap-0.5 text-right">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-200/60">다음 포트폴리오</span>
+            <span className="text-sm font-extrabold text-white leading-tight">{nextNav.site}</span>
+            {nextNav.repKeyword && (
+              <span className="text-[11px] text-indigo-200/70 truncate max-w-[120px]">{nextNav.repKeyword}</span>
+            )}
+          </div>
+          <ChevronRight size={20} className="text-white shrink-0" />
+        </Link>
+      )}
+
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-20 left-1/3 h-[500px] w-[500px] rounded-full bg-red-600/6 blur-[140px]" />
-        <div className="absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-rose-600/4 blur-[120px]" />
+        <div className="absolute -top-20 left-1/3 h-[500px] w-[500px] rounded-full bg-indigo-600/6 blur-[140px]" />
+        <div className="absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-emerald-600/4 blur-[120px]" />
       </div>
 
       <header className="sticky top-0 z-20 border-b border-white/5 bg-[#080c14]/90 backdrop-blur-xl">
@@ -183,15 +236,13 @@ export default function FailureCaseDetailPage() {
           <nav className="flex items-center gap-1.5 text-xs text-gray-600">
             <Link href="/" className="flex items-center gap-1 hover:text-white transition-colors"><ArrowLeft size={12} /> 포트폴리오</Link>
             <span className="text-white/10">/</span>
-            <Link href="/cases/google/failure" className="hover:text-gray-300 transition-colors">구글 실패</Link>
-            <span className="text-white/10">/</span>
             <span className="text-white font-medium">{c.site}</span>
           </nav>
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1.5 text-[11px] text-gray-600">
               <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-400" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
               </span>
               실시간{updatedAt && ` · ${updatedAt}`}
             </span>
@@ -205,42 +256,72 @@ export default function FailureCaseDetailPage() {
 
       <div className="relative mx-auto max-w-4xl space-y-5 px-6 py-8">
 
-        {/* 배너 */}
-        <div className="relative overflow-hidden rounded-2xl border border-red-500/15 bg-gradient-to-br from-red-950/40 to-[#080c14] p-6">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
-          <div className="absolute left-0 top-0 h-full w-0.5 bg-red-500" />
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-bold text-red-400">🔴 구글 SEO · 실패</span>
-                {c.category && <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-[11px] text-gray-500">{c.category}</span>}
+        {/* 배너 - 탭에 따라 테마 변경 */}
+        {(() => {
+          const isNaverSuccess = activeTab === "naver" && !!c.naverData;
+          return (
+            <div className={`relative overflow-hidden rounded-2xl border p-6 bg-gradient-to-br to-[#080c14] transition-all duration-300 ${
+              isNaverSuccess
+                ? "border-emerald-500/20 from-emerald-950/40"
+                : "border-amber-500/15 from-amber-950/20"
+            }`}>
+              <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent transition-all duration-300 ${
+                isNaverSuccess ? "via-emerald-500/50" : "via-amber-500/40"
+              }`} />
+              <div className={`absolute left-0 top-0 h-full w-0.5 transition-all duration-300 ${
+                isNaverSuccess ? "bg-emerald-500" : "bg-amber-500"
+              }`} />
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold transition-all duration-300 ${
+                      isNaverSuccess
+                        ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
+                        : "border-amber-500/25 bg-amber-500/10 text-amber-400"
+                    }`}>
+                      {isNaverSuccess ? "🟢 네이버 SEO · 1페이지 달성" : "🔵 구글 SEO · 순위 하락"}
+                    </span>
+                    {c.category && <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-[11px] text-gray-500">{c.category}</span>}
+                  </div>
+                  <h1 className="text-2xl font-extrabold text-white">
+                    {isNaverSuccess ? (c.naverTitle ?? c.title) : c.title}
+                  </h1>
+                  <p className="mt-1 text-sm text-gray-400">
+                    {isNaverSuccess ? (c.naverSummary ?? c.summary) : c.summary}
+                  </p>
+                </div>
+                <a href={c.siteUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 text-sm text-indigo-400 hover:border-indigo-500/30 hover:text-indigo-300 transition-all">
+                  {c.site} <ExternalLink size={12} />
+                </a>
               </div>
-              <h1 className="text-2xl font-extrabold text-white">{c.title}</h1>
-              <p className="mt-1 text-sm text-gray-400">{c.summary}</p>
             </div>
-            <a href={c.siteUrl} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 text-sm text-indigo-400 hover:border-indigo-500/30 hover:text-indigo-300 transition-all">
-              {c.site} <ExternalLink size={12} />
-            </a>
-          </div>
-        </div>
+          );
+        })()}
 
         {/* 탭 */}
         <div className="flex gap-1.5 rounded-2xl border border-white/8 bg-white/[0.02] p-1.5">
-          {(["google", "naver", "geo"] as const).map((tab) => {
-            const labels = { google: "🔵 Google", naver: "🟢 Naver", geo: "🤖 GEO" };
-            const descs  = { google: "검색엔진",   naver: "네이버",   geo: "생성형 AI" };
+          {(["google", "naver", ...(c.geoScreenshots?.length ? ["geo"] : [])] as ("google" | "naver" | "geo")[]).map((tab) => {
+            const icons = { google: "/구글.png", naver: "/naver_icon.png", geo: "/chatgpt.png" };
+            const labels = { google: "Google", naver: "Naver", geo: "GEO" };
+            const descs  = { google: "검색엔진", naver: "네이버", geo: "생성형 AI" };
+            const iconFilter = { google: "", naver: "", geo: "brightness-0 invert" };
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 flex flex-col items-center gap-0.5 rounded-xl py-3.5 px-4 transition-all duration-200 ${
+                className={`flex-1 flex flex-col items-center gap-1 rounded-xl py-3 px-4 transition-all duration-200 ${
                   activeTab === tab
                     ? "bg-white/10 text-white shadow-sm"
                     : "text-gray-600 hover:text-gray-400 hover:bg-white/5"
                 }`}
               >
-                <span className="text-sm font-black tracking-wide">{labels[tab]}</span>
+                <img
+                  src={icons[tab]}
+                  alt={labels[tab]}
+                  className={`h-5 w-5 object-contain transition-opacity duration-200 ${iconFilter[tab]} ${activeTab === tab ? "opacity-100" : "opacity-40"}`}
+                />
+                <span className="text-[11px] font-bold tracking-wide">{labels[tab]}</span>
                 <span className={`text-[10px] font-medium ${activeTab === tab ? "text-gray-400" : "text-gray-700"}`}>{descs[tab]}</span>
               </button>
             );
@@ -257,24 +338,42 @@ export default function FailureCaseDetailPage() {
               <p className="text-xs text-gray-600">cases.ts의 naverData 필드에 값을 입력하면 표시됩니다.</p>
             </div>
           );
-          const naverKpis = [
-            { label: "총 클릭수", value: nd.clicks.toLocaleString(),      color: "text-emerald-400", border: "border-emerald-500/20", bg: "bg-emerald-500/5", icon: MousePointer },
-            { label: "총 노출수", value: nd.impressions.toLocaleString(), color: "text-indigo-400",  border: "border-indigo-500/20",  bg: "bg-indigo-500/5",  icon: Eye },
-            { label: "평균 순위", value: `#${nd.avgPosition}`,            color: "text-amber-400",   border: "border-amber-500/20",   bg: "bg-amber-500/5",   icon: Target },
+          const NAVER_COLORS = ["#10b981", "#6366f1", "#8b5cf6"];
+          const naverKpiItems = [
+            { label: "총 클릭수", display: nd.clicks.toLocaleString(),                       pct: 100 },
+            { label: "총 노출수", display: nd.impressions.toLocaleString(),                  pct: 100 },
+            { label: "평균 CTR",  display: nd.avgCtr != null ? `${nd.avgCtr}%` : "-",        pct: Math.min((nd.avgCtr ?? 0) / 10 * 100, 100) },
           ];
           return (
             <div className="space-y-5">
               {nd.period && <p className="text-[11px] text-gray-600 text-right">{nd.period}</p>}
-              <div className="grid grid-cols-3 gap-3">
-                {naverKpis.map(item => (
-                  <div key={item.label} className={`rounded-2xl border ${item.border} ${item.bg} p-4`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] text-gray-500">{item.label}</span>
-                      <item.icon size={12} className={item.color} />
-                    </div>
-                    <div className={`text-2xl font-extrabold tabular-nums ${item.color}`}>{item.value}</div>
-                  </div>
-                ))}
+              <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+                <p className="text-sm font-bold text-white mb-1">네이버 지표 요약</p>
+                <p className="text-[11px] text-gray-600 mb-4">실제 수치 레이블 · 상대적 달성도 비교</p>
+                <ResponsiveContainer width="100%" height={240}>
+                  <BarChart data={naverKpiItems} margin={{ top: 40, right: 16, left: 16, bottom: 8 }} barSize={64}>
+                    <CartesianGrid strokeDasharray="2 4" stroke="#ffffff06" vertical={false} />
+                    <XAxis dataKey="label" tick={{ fill: "#9ca3af", fontSize: 12, fontWeight: 500 }} tickLine={false} axisLine={false} />
+                    <YAxis hide domain={[0, 115]} />
+                    <Tooltip
+                      cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const d = payload[0].payload as (typeof naverKpiItems)[0];
+                        return (
+                          <div className="rounded-xl border border-white/10 bg-[#0d1424]/98 px-4 py-2.5 text-sm shadow-xl">
+                            <p className="font-semibold text-white">{d.label}</p>
+                            <p className="text-base font-bold text-gray-200">{d.display}</p>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Bar dataKey="pct" radius={[8, 8, 0, 0]}>
+                      {naverKpiItems.map((_, i) => <Cell key={i} fill={NAVER_COLORS[i]} fillOpacity={0.9} />)}
+                      <LabelList dataKey="display" position="top" style={{ fill: "#f9fafb", fontSize: 14, fontWeight: 700 }} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
               {nd.history && nd.history.length > 0 && (
                 <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
@@ -298,23 +397,68 @@ export default function FailureCaseDetailPage() {
                   </ResponsiveContainer>
                 </div>
               )}
-              {nd.keywords && nd.keywords.length > 0 && (
-                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
-                  <p className="text-sm font-bold text-white mb-1">키워드 순위</p>
-                  <p className="text-[11px] text-gray-600 mb-4">네이버 검색 상위 키워드</p>
+              {nd.keywords && nd.keywords.length > 0 && (() => {
+                const kwChartData = nd.keywords!.map(kw => ({
+                  name: kw.keyword.length > 10 ? kw.keyword.slice(0, 10) + "…" : kw.keyword,
+                  fullName: kw.keyword,
+                  clicks: kw.clicks,
+                  impressions: kw.impressions,
+                  position: kw.position,
+                  ctr: kw.impressions > 0 ? +((kw.clicks / kw.impressions) * 100).toFixed(1) : 0,
+                }));
+                return (
+                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 space-y-5">
+                  {/* 노출수 · 클릭수 바 차트 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-sm font-bold text-white">키워드별 노출 · 클릭</p>
+                        <p className="text-[11px] text-gray-600 mt-0.5">네이버 서치어드바이저 TOP 키워드</p>
+                      </div>
+                      <div className="flex gap-3 text-[11px] text-gray-600">
+                        <span className="flex items-center gap-1.5"><span className="h-1.5 w-3 rounded-full bg-indigo-500" />노출수</span>
+                        <span className="flex items-center gap-1.5"><span className="h-1.5 w-3 rounded-full bg-emerald-500" />클릭수</span>
+                      </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={kwChartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }} barGap={2}>
+                        <CartesianGrid strokeDasharray="2 4" stroke="#ffffff06" vertical={false} />
+                        <XAxis dataKey="name" tick={{ fill: "#4b5563", fontSize: 9 }} tickLine={false} axisLine={false} />
+                        <YAxis tick={{ fill: "#4b5563", fontSize: 10 }} tickLine={false} axisLine={false} width={36} />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (!active || !payload?.length) return null;
+                            const d = kwChartData.find(x => x.name === payload[0].payload.name);
+                            return (
+                              <div className="rounded-xl border border-white/10 bg-[#0d1424]/98 px-4 py-3 shadow-2xl text-xs">
+                                <p className="mb-2 font-bold text-white">{d?.fullName}</p>
+                                <p className="text-indigo-400">노출 {d?.impressions.toLocaleString()}</p>
+                                <p className="text-emerald-400">클릭 {d?.clicks}</p>
+                                <p className="text-violet-400">CTR {d?.ctr}%</p>
+                                <p className="text-amber-400">#{d?.position}위</p>
+                              </div>
+                            );
+                          }}
+                        />
+                        <Bar dataKey="impressions" fill="#6366f1" fillOpacity={0.7} radius={[3,3,0,0]} maxBarSize={32} />
+                        <Bar dataKey="clicks"      fill="#10b981" fillOpacity={0.9} radius={[3,3,0,0]} maxBarSize={32} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {/* 키워드 순위 리스트 */}
                   <div className="space-y-3">
-                    {nd.keywords.map(kw => {
+                    {nd.keywords!.map(kw => {
                       const p = kw.position;
                       const color = p <= 3 ? "bg-emerald-500" : p <= 10 ? "bg-indigo-500" : "bg-amber-500";
-                      const textColor = p <= 3 ? "text-emerald-400" : p <= 10 ? "text-indigo-400" : "text-amber-400";
-                      const barW = Math.max(6, Math.round((30 / p) * 100));
+                      const maxImpr = Math.max(...nd.keywords!.map(k => k.impressions));
+                      const barW = Math.max(4, Math.round((kw.impressions / maxImpr) * 100));
                       return (
                         <div key={kw.keyword}>
                           <div className="mb-1 flex items-center justify-between gap-3">
                             <span className="truncate text-xs font-medium text-gray-200">{kw.keyword}</span>
                             <div className="flex shrink-0 items-center gap-2">
                               <span className="text-[11px] tabular-nums text-gray-600">{kw.impressions.toLocaleString()} 노출</span>
-                              <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold bg-white/5 ${textColor}`}>#{p}위</span>
+                              <span className="text-[11px] tabular-nums text-gray-600">{kw.clicks} 클릭</span>
                             </div>
                           </div>
                           <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
@@ -325,7 +469,8 @@ export default function FailureCaseDetailPage() {
                     })}
                   </div>
                 </div>
-              )}
+                );
+              })()}
             </div>
           );
         })()}
@@ -531,7 +676,7 @@ export default function FailureCaseDetailPage() {
             {c.goal && (
               <div className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
                 <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-white">
-                  <Target size={12} className="text-red-400" /> 실패 원인
+                  <Target size={12} className="text-amber-400" /> 하락 원인
                 </h2>
                 <p className="text-sm leading-relaxed text-gray-400">{c.goal}</p>
               </div>
@@ -558,7 +703,7 @@ export default function FailureCaseDetailPage() {
             <h2 className="mb-5 text-xs font-bold uppercase tracking-wide text-white">실행 타임라인</h2>
             <div>
               {c.timeline.map((t, i) => (
-                <div key={t.date} className="relative flex gap-4 pb-5 last:pb-0">
+                <div key={i} className="relative flex gap-4 pb-5 last:pb-0">
                   {i < c.timeline.length - 1 && <div className="absolute left-[14px] top-7 h-full w-px bg-white/5" />}
                   <div className="relative mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-[11px] font-bold text-red-400">{i + 1}</div>
                   <div>
@@ -584,11 +729,36 @@ export default function FailureCaseDetailPage() {
         </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          <Link href="/cases/google/failure" className="flex items-center gap-1.5 text-xs text-gray-600 hover:text-white transition-colors">
-            <ArrowLeft size={12} /> 실패 케이스 목록
-          </Link>
-          <Link href="/" className="text-xs text-gray-700 hover:text-gray-400 transition-colors">포트폴리오 홈</Link>
+        {/* ── 이전 / 다음 포트폴리오 ── */}
+        <div className="grid grid-cols-2 gap-3 pt-2">
+          {prevNav ? (
+            <Link
+              href={prevNav.href}
+              className="group flex flex-col gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-5 hover:border-indigo-500/40 hover:bg-white/[0.06] transition-all duration-300"
+            >
+              <div className="flex items-center gap-1.5 text-[11px] text-gray-600 group-hover:text-indigo-400 transition-colors">
+                <ChevronLeft size={13} /> 이전 포트폴리오
+              </div>
+              <p className="text-base font-extrabold text-white group-hover:text-indigo-300 transition-colors truncate">{prevNav.site}</p>
+              <p className="text-[11px] text-gray-600 truncate">{prevNav.repKeyword ?? prevNav.title}</p>
+            </Link>
+          ) : (
+            <div />
+          )}
+          {nextNav ? (
+            <Link
+              href={nextNav.href}
+              className="group flex flex-col gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-5 text-right hover:border-indigo-500/40 hover:bg-white/[0.06] transition-all duration-300"
+            >
+              <div className="flex items-center justify-end gap-1.5 text-[11px] text-gray-600 group-hover:text-indigo-400 transition-colors">
+                다음 포트폴리오 <ChevronRight size={13} />
+              </div>
+              <p className="text-base font-extrabold text-white group-hover:text-indigo-300 transition-colors truncate">{nextNav.site}</p>
+              <p className="text-[11px] text-gray-600 truncate">{nextNav.repKeyword ?? nextNav.title}</p>
+            </Link>
+          ) : (
+            <div />
+          )}
         </div>
       </div>
     </main>

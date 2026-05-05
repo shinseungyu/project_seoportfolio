@@ -1,11 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useEffect } from "react"
-import { Menu, X, Search, Github } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Search } from "lucide-react"
 
 export function SiteHeader() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -35,17 +34,6 @@ export function SiteHeader() {
             </div>
           </Link>
 
-          <div className="hidden items-center gap-6 md:flex">
-            <Link href="/" className="text-xs font-semibold text-zinc-400 transition-colors hover:text-white">
-              Project List
-            </Link>
-            <Link href="/#about" className="text-xs font-semibold text-zinc-400 transition-colors hover:text-white">
-              About
-            </Link>
-            <Link href="/portfolio/lab" className="text-xs font-semibold text-zinc-400 transition-colors hover:text-white">
-              Interaction Lab
-            </Link>
-          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -55,41 +43,9 @@ export function SiteHeader() {
             <span className="text-[10px] font-bold text-emerald-400/90 tracking-wider">LIVE DATA</span>
           </div>
           
-          <button
-            type="button"
-            className="md:hidden text-zinc-400 hover:text-white transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
       </nav>
 
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="absolute inset-x-4 top-full mt-2 overflow-hidden rounded-2xl glass p-4 md:hidden animate-in fade-in slide-in-from-top-4">
-          <ul className="flex flex-col gap-4">
-            <li>
-              <Link
-                href="/#about"
-                className="block text-sm font-medium text-zinc-300 hover:text-white"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                About
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/"
-                className="block text-sm font-medium text-zinc-300 hover:text-white"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Project List
-              </Link>
-            </li>
-          </ul>
-        </div>
-      )}
     </header>
   )
 }
