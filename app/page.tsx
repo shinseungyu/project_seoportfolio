@@ -361,20 +361,25 @@ export default function HomePage() {
         </div>
         
         <div className="relative z-10 text-center">
+          <div className="mb-2 overflow-hidden">
+            <p className="reveal-text text-lg font-semibold tracking-[0.4em] uppercase text-indigo-400">
+              Hello,
+            </p>
+          </div>
           <div className="mb-4 overflow-hidden">
             <h1 className="reveal-text text-5xl font-black tracking-tighter text-white sm:text-7xl md:text-9xl lg:text-[10rem] uppercase leading-none">
-              Interaction
+              My
             </h1>
           </div>
           <div className="overflow-hidden">
             <h1 className="reveal-text text-5xl font-black tracking-tighter sm:text-7xl md:text-9xl lg:text-[10rem] uppercase leading-none text-gradient leading-none">
-              Architect
+              Portfolio
             </h1>
           </div>
 
           <p className="mt-12 max-w-xl mx-auto text-sm font-medium text-zinc-500 leading-relaxed uppercase tracking-[0.3em]">
-            Google SEO & Data-Driven Growth Systems.<br />
-            Experience the precision of algorithmic optimization.
+            Google SEO · 데이터 기반 성장 전략<br />
+            Google Search Console API 실시간 데이터 연동
           </p>
 
           <div className="mt-20 flex justify-center">
@@ -470,12 +475,9 @@ export default function HomePage() {
 
         {/* Panel: carpaypro */}
         <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
-          <div className="panel-content w-full max-w-5xl grid sm:grid-cols-2 gap-6">
-            <div className="min-h-[400px]">
+          <div className="panel-content w-full max-w-5xl">
+            <div className="min-h-[400px] max-w-lg mx-auto">
               <CaseCard c={googleFailureCases.find(c => c.slug === "carpaypro")!} isLight />
-            </div>
-            <div className="min-h-[400px] flex items-center justify-center rounded-2xl border border-dashed border-slate-200">
-              <p className="text-sm font-bold text-slate-300 uppercase tracking-widest">Coming Soon</p>
             </div>
           </div>
         </div>
