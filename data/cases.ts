@@ -22,6 +22,7 @@ export type SearchConsoleData = {
   impressions: string;
   clicks: string;
   avgPosition: number;
+  avgCtr?: number;
   history: number[];
 };
 
@@ -221,7 +222,7 @@ export const googleSuccessCases: Case[] = [
     tier: "page1",
     title: "관세 정보 사이트 구글 성과",
     summary: "관세·수입 관련 키워드 구글 노출 성장",
-    period: "준비 중",
+    period: "2026.04.10",
     category: "관세 / 무역",
     goal: "",
     strategy: [],
@@ -229,8 +230,16 @@ export const googleSuccessCases: Case[] = [
     timeline: [],
     insight: "",
     ready: true,
-    hasLiveDashboard: true,
-    repKeyword: "일본관세계산기",
+    hasLiveDashboard: false,
+    repKeyword: "네이버 관세계산기 1위",
+    topKeyword: { keyword: "관세계산기", rank: 1 },
+    searchConsole: {
+      impressions: "8800",
+      clicks: "330",
+      avgPosition: 7,
+      avgCtr: 3.7,
+      history: [],
+    },
     badges: ["google", "naver", "geo", "snippet"],
     snippets: [
       { type: "naver_top", keyword: "일본 직구 관세 계산기", engine: "naver", image: "/관세관세계산기이거는네이버서브페이지노출.jpg" },
@@ -239,12 +248,13 @@ export const googleSuccessCases: Case[] = [
       { tool: "ChatGPT", prompt: "관세계산기 관련 웹사이트 추천해줘", image: "/관세계산기.png" },
     ],
     naverData: {
-      impressions: 920,
-      clicks: 55,
-      avgPosition: 2,
-      avgCtr: 6.0,
-      period: "2026.04.23 등록 · 최근 30일 기준",
+      impressions: 8800,
+      clicks: 330,
+      avgPosition: 1,
+      avgCtr: 3.7,
+      period: "2026.05.15 기준 · 최근 30일",
       keywords: [
+        { keyword: "관세계산기",             position: 1, impressions: 0,   clicks: 0  },
         { keyword: "일본 직구 관세 계산기",   position: 1, impressions: 146, clicks: 13 },
         { keyword: "일본 관세 계산기",        position: 3, impressions: 307, clicks: 5  },
         { keyword: "유로 관세 계산기",        position: 1, impressions: 10,  clicks: 4  },
@@ -274,7 +284,7 @@ export const googleSuccessCases: Case[] = [
     insight: "",
     ready: true,
     hasLiveDashboard: true,
-    repKeyword: "자동차 취등록세 계산기",
+    repKeyword: "자동차 취등록세 구글 1페이지",
     badges: ["google", "naver", "geo"],
     geoScreenshots: [
       { tool: "ChatGPT", prompt: "자동차 취등록세 계산기 관련 사이트 추천해줘", image: "/자동차취등록세계산.png" },

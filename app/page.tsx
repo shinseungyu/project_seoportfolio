@@ -73,8 +73,9 @@ function CaseCard({ c, isLight = false }: { c: Case, isLight?: boolean }) {
   const displayClicksRaw = s ? s.totalClicks : parseInt(c.searchConsole?.clicks || "0", 10);
   const displayAvgPosRaw = s ? parseFloat(s.avgPosition) : (c.searchConsole?.avgPosition || 0);
 
-  const displayImpressions = s ? (s.totalImpressions >= 1000 ? (s.totalImpressions / 1000).toFixed(1) + 'K' : s.totalImpressions) : (c.searchConsole?.impressions || "0");
-  const displayClicks = s ? (s.totalClicks >= 1000 ? (s.totalClicks / 1000).toFixed(1) + 'K' : s.totalClicks) : (c.searchConsole?.clicks || "0");
+  const formatK = (n: number) => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
+  const displayImpressions = s ? formatK(s.totalImpressions) : formatK(displayImpressionsRaw);
+  const displayClicks = s ? formatK(s.totalClicks) : formatK(displayClicksRaw);
   const displayAvgPos = s ? s.avgPosition : (c.searchConsole?.avgPosition || "0");
   
   const coreKeyword = c.slug === 'carelec' ? "전기차 보조금 계산기" : (c.topKeyword?.keyword || "핵심 키워드");
@@ -126,6 +127,11 @@ function CaseCard({ c, isLight = false }: { c: Case, isLight?: boolean }) {
             <span className={isLight ? "text-slate-800" : "text-white"}>
               {new Date(s.firstSeen).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\. /g, ".").replace(/\.$/, "")}
             </span>
+            {" ~ 현재"}
+          </span>
+        ) : c.period && c.period !== "준비 중" ? (
+          <span className={`text-[11px] font-bold ${isLight ? "text-slate-400" : "text-zinc-500"}`}>
+            <span className={isLight ? "text-slate-800" : "text-white"}>{c.period}</span>
             {" ~ 현재"}
           </span>
         ) : null}
@@ -446,39 +452,30 @@ export default function HomePage() {
           </div>
         </div>
         
-        {/* Panel: carelec + carprotax */}
+        {/* Panel: gwanse + carprotax */}
         <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
           <div className="panel-content w-full max-w-5xl grid sm:grid-cols-2 gap-6">
-            {[googleSuccessCases.find(c => c.slug === "carelec")!, googleSuccessCases.find(c => c.slug === "carprotax")!].map(c => (
+            {[googleSuccessCases.find(c => c.slug === "gwanse")!, googleSuccessCases.find(c => c.slug === "carprotax")!].map(c => (
               <div key={c.slug} className="min-h-[400px]"><CaseCard c={c} isLight /></div>
             ))}
           </div>
         </div>
 
-        {/* Panel: fundfinpro + hospetpay */}
+        {/* Panel: carelec + fundfinpro */}
         <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
           <div className="panel-content w-full max-w-5xl grid sm:grid-cols-2 gap-6">
-            {[googleSuccessCases.find(c => c.slug === "fundfinpro")!, googleSuccessCases.find(c => c.slug === "hospetpay")!].map(c => (
+            {[googleSuccessCases.find(c => c.slug === "carelec")!, googleSuccessCases.find(c => c.slug === "fundfinpro")!].map(c => (
               <div key={c.slug} className="min-h-[400px]"><CaseCard c={c} isLight /></div>
             ))}
           </div>
         </div>
 
-        {/* Panel: gwanse + newsioo */}
+        {/* Panel: hospetpay + carpaypro */}
         <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
           <div className="panel-content w-full max-w-5xl grid sm:grid-cols-2 gap-6">
-            {[googleSuccessCases.find(c => c.slug === "gwanse")!, googleFailureCases.find(c => c.slug === "newsioo")!].map(c => (
+            {[googleSuccessCases.find(c => c.slug === "hospetpay")!, googleFailureCases.find(c => c.slug === "carpaypro")!].map(c => (
               <div key={c.slug} className="min-h-[400px]"><CaseCard c={c} isLight /></div>
             ))}
-          </div>
-        </div>
-
-        {/* Panel: carpaypro */}
-        <div className="panel flex min-h-screen lg:h-screen w-full lg:w-screen lg:flex-shrink-0 items-center justify-center px-6 sm:px-12 lg:px-24 py-20 lg:py-0">
-          <div className="panel-content w-full max-w-5xl">
-            <div className="min-h-[400px] max-w-lg mx-auto">
-              <CaseCard c={googleFailureCases.find(c => c.slug === "carpaypro")!} isLight />
-            </div>
           </div>
         </div>
 

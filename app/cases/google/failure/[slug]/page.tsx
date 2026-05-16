@@ -160,12 +160,11 @@ export default function FailureCaseDetailPage() {
   };
 
   const ALL_ORDER: { slug: string; type: "success" | "failure" }[] = [
-    { slug: "carelec",    type: "success" },
+    { slug: "gwanse",     type: "success" },
     { slug: "carprotax",  type: "success" },
+    { slug: "carelec",    type: "success" },
     { slug: "fundfinpro", type: "success" },
     { slug: "hospetpay",  type: "success" },
-    { slug: "gwanse",     type: "success" },
-    { slug: "newsioo",    type: "failure" },
     { slug: "carpaypro",  type: "failure" },
   ];
   type NavInfo = { slug: string; site: string; repKeyword?: string; title: string; href: string };

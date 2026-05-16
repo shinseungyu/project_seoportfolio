@@ -111,7 +111,7 @@ export default function CaseDetailPage() {
   const [data, setData] = useState<ApiData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState("");
-  const [activeTab, setActiveTab] = useState<"google" | "naver" | "geo" | "claude" | "snippet">("google");
+  const [activeTab, setActiveTab] = useState<"google" | "naver" | "geo" | "claude" | "snippet">(slug === "gwanse" ? "naver" : "google");
   const [geoIdx, setGeoIdx] = useState(0);
   const [claudeIdx, setClaudeIdx] = useState(0);
   const [snippetIdx, setSnippetIdx] = useState(0);
@@ -165,12 +165,11 @@ export default function CaseDetailPage() {
   };
 
   const ALL_ORDER: { slug: string; type: "success" | "failure" }[] = [
-    { slug: "carelec",    type: "success" },
+    { slug: "gwanse",     type: "success" },
     { slug: "carprotax",  type: "success" },
+    { slug: "carelec",    type: "success" },
     { slug: "fundfinpro", type: "success" },
     { slug: "hospetpay",  type: "success" },
-    { slug: "gwanse",     type: "success" },
-    { slug: "newsioo",    type: "failure" },
     { slug: "carpaypro",  type: "failure" },
   ];
   type NavInfo = { slug: string; site: string; repKeyword?: string; title: string; href: string };
