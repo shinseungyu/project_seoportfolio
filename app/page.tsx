@@ -9,6 +9,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { googleSuccessCases, googleFailureCases, type Case } from "@/data/cases";
 import { AboutMe } from "@/components/about-me";
+import { ClinicSection } from "@/components/clinic-section";
 
 const HeroScene = dynamic(() => import("@/components/hero-scene-v2").then((mod) => mod.HeroSceneV2), {
   ssr: false,
@@ -411,6 +412,8 @@ export default function HomePage() {
           <MoveRight size={24} className="rotate-90" />
         </div>
       </section>
+
+      <ClinicSection />
 
       <AboutMe />
 
